@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <rect width="600" height="600" fill="#1a1a1a"/>
+  <circle cx="300" cy="260" r="120" fill="#FFD700"/>
+  <text x="300" y="280" font-family="Arial, sans-serif" font-size="80" font-weight="900" text-anchor="middle" fill="#0a0a0a">P</text>
+  <text x="300" y="440" font-family="Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle" fill="#FFD700">PEWEKA</text>
+  <text x="300" y="475" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#525252" letter-spacing="3">CULTURE &amp; THE FUTURE</text>
+</svg>

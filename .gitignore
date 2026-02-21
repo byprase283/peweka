@@ -1,15 +1,6 @@
 # Ignite CI3 .gitignore
-/application/config/database.php
-/application/config/midtrans.php
-/application/config/rajaongkir.php
-/application/config/config.php
-/application/logs/*
-!/application/logs/index.html
-/application/cache/*
-!/application/cache/index.html
-/application/db.sqlite
-/assets/img/products/*
-!/assets/img/products/index.html
+
+
 
 # Temp and Debug files
 /cookie.txt
