@@ -1,5 +1,5 @@
 # Ignite CI3 .gitignore
-
+/application/config/database.php
 
 
 # Temp and Debug files
