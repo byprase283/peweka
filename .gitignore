@@ -1,5 +1,4 @@
 # Ignite CI3 .gitignore
-/index.php
 /application/config/database.php
 /application/config/midtrans.php
 /application/config/rajaongkir.php
