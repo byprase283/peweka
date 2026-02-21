@@ -1,0 +1,204 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Product_model extends CI_Model
+{
+
+    public function get_all($active_only = TRUE, $category_slug = NULL, $limit = NULL, $offset = 0)
+    {
+        $this->db->select('products.*, categories.name as category_name, categories.slug as category_slug');
+        $this->db->from('products');
+        $this->db->join('categories', 'categories.id = products.category_id', 'left');
+
+        if ($active_only) {
+            $this->db->where('products.is_active', 1);
+        }
+
+        if ($category_slug) {
+            $this->db->where('categories.slug', $category_slug);
+        }
+
+        $this->db->order_by('products.created_at', 'DESC');
+
+        if ($limit) {
+            $this->db->limit($limit, $offset);
+        }
+
+        return $this->db->get()->result();
+    }
+
+    public function get_by_id($id)
+    {
+        $this->db->select('products.*, categories.name as category_name, categories.id as category_id');
+        $this->db->from('products');
+        $this->db->join('categories', 'categories.id = products.category_id', 'left');
+        $this->db->where('products.id', $id);
+        return $this->db->get()->row();
+    }
+
+    public function get_variants($product_id)
+    {
+        return $this->db->get_where('product_variants', ['product_id' => $product_id])->result();
+    }
+
+    public function get_variant_by_id($id)
+    {
+        return $this->db->get_where('product_variants', ['id' => $id])->row();
+    }
+
+    public function get_available_sizes($product_id)
+    {
+        $this->db->select('DISTINCT(size) as size');
+        $this->db->where('product_id', $product_id);
+        $this->db->where('stock >', 0);
+        return $this->db->get('product_variants')->result();
+    }
+
+    public function get_available_colors($product_id, $size = NULL)
+    {
+        $this->db->where('product_id', $product_id);
+        $this->db->where('stock >', 0);
+        if ($size) {
+            $this->db->where('size', $size);
+        }
+        return $this->db->get('product_variants')->result();
+    }
+
+    public function create($data)
+    {
+        $this->db->insert('products', $data);
+        return $this->db->insert_id();
+    }
+
+    public function update($id, $data)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update('products', $data);
+    }
+
+    public function delete($id)
+    {
+        $this->db->where('id', $id);
+        return $this->db->delete('products');
+    }
+
+    public function add_variant($data)
+    {
+        $this->db->insert('product_variants', $data);
+        return $this->db->insert_id();
+    }
+
+    public function delete_variants($product_id)
+    {
+        $this->db->where('product_id', $product_id);
+        return $this->db->delete('product_variants');
+    }
+
+    // ===================================
+    // SHOP & FILTERING
+    // ===================================
+
+    private function _apply_filters($filters)
+    {
+        // 1. Active products only
+        $this->db->where('products.is_active', 1);
+
+        // 2. Category Filter
+        if (!empty($filters['category'])) {
+            $this->db->where('categories.slug', $filters['category']);
+        }
+
+        // 3. Price Filter
+        if (!empty($filters['min_price'])) {
+            $this->db->where('products.price >=', $filters['min_price']);
+        }
+        if (!empty($filters['max_price'])) {
+            $this->db->where('products.price <=', $filters['max_price']);
+        }
+
+        // 4. Color Filter (using subquery or exists)
+        if (!empty($filters['color'])) {
+            $this->db->where("EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = products.id AND pv.color = " . $this->db->escape($filters['color']) . ")");
+        }
+
+        // 5. Search Keyword
+        if (!empty($filters['search'])) {
+            $this->db->group_start();
+            $this->db->like('products.name', $filters['search']);
+            $this->db->or_like('products.description', $filters['search']);
+            $this->db->group_end();
+        }
+    }
+
+    public function get_shop_products($limit, $offset, $filters = [])
+    {
+        $this->db->select('products.*, categories.name as category_name, categories.slug as category_slug');
+        $this->db->from('products');
+        $this->db->join('categories', 'categories.id = products.category_id', 'left');
+
+        $this->_apply_filters($filters);
+
+        // Sorting
+        $sort = isset($filters['sort']) ? $filters['sort'] : 'newest';
+        switch ($sort) {
+            case 'price_low':
+                $this->db->order_by('products.price', 'ASC');
+                break;
+            case 'price_high':
+                $this->db->order_by('products.price', 'DESC');
+                break;
+            case 'newest':
+            default:
+                $this->db->order_by('products.created_at', 'DESC');
+                break;
+        }
+
+        $this->db->limit($limit, $offset);
+        return $this->db->get()->result();
+    }
+
+    public function count_shop_products($filters = [])
+    {
+        $this->db->from('products');
+        $this->db->join('categories', 'categories.id = products.category_id', 'left');
+        $this->_apply_filters($filters);
+        return $this->db->count_all_results();
+    }
+
+    public function get_all_colors()
+    {
+        $this->db->distinct();
+        $this->db->select('color');
+        $this->db->from('product_variants');
+        $this->db->order_by('color', 'ASC');
+        return $this->db->get()->result();
+    }
+
+    public function get_price_range()
+    {
+        $this->db->select_min('price', 'min_price');
+        $this->db->select_max('price', 'max_price');
+        $this->db->where('is_active', 1);
+        return $this->db->get('products')->row();
+    }
+
+    // ===================================
+    // MULTI IMAGE SUPPORT
+    // ===================================
+    public function get_images($product_id)
+    {
+        return $this->db->get_where('product_images', ['product_id' => $product_id])->result();
+    }
+
+    public function add_image($data)
+    {
+        $this->db->insert('product_images', $data);
+        return $this->db->insert_id();
+    }
+
+    public function delete_image($id)
+    {
+        $this->db->where('id', $id);
+        return $this->db->delete('product_images');
+    }
+}

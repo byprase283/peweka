@@ -1,0 +1,36 @@
+# Ignite CI3 .gitignore
+/index.php
+/system/
+/application/config/database.php
+/application/config/midtrans.php
+/application/config/rajaongkir.php
+/application/config/config.php
+/application/logs/*
+!/application/logs/index.html
+/application/cache/*
+!/application/cache/index.html
+/application/db.sqlite
+/uploads/*
+!/uploads/index.html
+!/uploads/payments/
+/uploads/payments/*
+!/uploads/payments/index.html
+/assets/img/products/*
+!/assets/img/products/index.html
+
+# Temp and Debug files
+/cookie.txt
+/debug_log.txt
+/debug_*.php
+/peweka_db.sql
+/test_*.php
+create_dummy_jpg.php
+create_png.php
+create_product_images_table.php
+update_db_categories.php
+update_password.php
+install_db.php
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+$config['rajaongkir_api_key'] = 'YOUR_RAJAONGKIR_API_KEY_HERE';
+$config['rajaongkir_payment_api_key'] = 'YOUR_KOMERCE_PAYMENT_API_KEY_HERE';
+$config['rajaongkir_use_mock'] = false;
+$config['rajaongkir_payment_sandbox'] = true;
+
+// Mock data can be left as is in the example for reference
+$config['rajaongkir_mock_provinces'] = [
+    ["id" => "9", "name" => "Jawa Barat"],
+    ["id" => "10", "name" => "Jawa Tengah"],
+    ["id" => "11", "name" => "Jawa Timur"],
+    ["id" => "6", "name" => "DKI Jakarta"]
+];
+// ... rest of the mock data

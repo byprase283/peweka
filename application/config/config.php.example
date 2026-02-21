@@ -1,0 +1,7 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+$config['base_url'] = 'http://localhost/peweka/';
+$config['index_page'] = '';
+$config['encryption_key'] = 'YOUR_SECRET_KEY_HERE';
+// ... rest of the default config
