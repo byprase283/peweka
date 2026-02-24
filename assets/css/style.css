@@ -1311,6 +1311,15 @@ img {
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+@media (max-width: 768px) {
+
+    .checkout-form-card,
+    .order-summary-card {
+        padding: 15px;
+        /* Reduced further for tight screens */
+    }
+}
+
 .order-summary-card {
     position: sticky;
     top: 90px;
@@ -1412,14 +1421,54 @@ img {
     color: var(--red);
 }
 
-@media (max-width: 768px) {
+/* Fix for total row alignment */
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    border-top: 2px solid var(--yellow);
+    margin-top: 10px;
+    padding-top: 15px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--yellow);
+    font-family: var(--font-primary);
+}
+
+@media (max-width: 480px) {
+    .voucher-input-group {
+        flex-direction: column;
+    }
+
+    .voucher-input-group button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 991px) {
     .checkout-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
     .order-summary-card {
         position: relative;
         top: 0;
+        order: -1;
+        /* Summary becomes first on mobile */
+    }
+}
+
+/* Utilities */
+.responsive-row {
+    display: flex;
+    gap: 15px;
+}
+
+@media (max-width: 576px) {
+    .responsive-row {
+        flex-direction: column;
+        gap: 0;
     }
 }
 

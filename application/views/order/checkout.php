@@ -20,16 +20,22 @@
         <style>
             .payment-methods {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-                gap: 12px;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
                 margin-bottom: 20px;
                 margin-top: 10px;
+            }
+
+            @media (max-width: 480px) {
+                .payment-methods {
+                    grid-template-columns: 1fr;
+                }
             }
 
             .payment-method-card {
                 border: 2px solid #eee;
                 border-radius: 12px;
-                padding: 15px;
+                padding: 12px;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 position: relative;
@@ -149,8 +155,8 @@
                             </select>
                         </div>
 
-                        <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
-                            <div class="form-group" style="flex: 1;">
+                        <div class="form-row responsive-row" style="margin-bottom: 15px;">
+                            <div class="form-group">
                                 <label>Provinsi</label>
                                 <select name="province_id" id="provinceSelect" class="form-control" required
                                     onchange="loadCities(this.value)">
@@ -161,7 +167,7 @@
                                 </select>
                                 <input type="hidden" name="province" id="provinceName">
                             </div>
-                            <div class="form-group" style="flex: 1;">
+                            <div class="form-group">
                                 <label>Kota/Kabupaten</label>
                                 <select name="city_id" id="citySelect" class="form-control" required
                                     onchange="loadDistricts(this.value)">
@@ -171,8 +177,8 @@
                             </div>
                         </div>
 
-                        <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
-                            <div class="form-group" style="flex: 1;">
+                        <div class="form-row responsive-row" style="margin-bottom: 15px;">
+                            <div class="form-group">
                                 <label>Kecamatan</label>
                                 <select name="district_id" id="districtSelect" class="form-control" required
                                     onchange="loadSubdistricts(this.value)">
@@ -180,7 +186,7 @@
                                 </select>
                                 <input type="hidden" name="district" id="districtName">
                             </div>
-                            <div class="form-group" style="flex: 1;">
+                            <div class="form-group">
                                 <label>Desa/Kelurahan</label>
                                 <select name="subdistrict_id" id="subdistrictSelect" class="form-control" required
                                     onchange="updateSubdistrictName(this)">
@@ -190,8 +196,8 @@
                             </div>
                         </div>
 
-                        <div class="form-row" style="display: flex; gap: 15px; margin-bottom: 15px;">
-                            <div class="form-group" style="flex: 1;">
+                        <div class="form-row responsive-row" style="margin-bottom: 15px;">
+                            <div class="form-group">
                                 <label>Kurir</label>
                                 <select name="courier" id="courierSelect" class="form-control" required
                                     onchange="calculateShipping()">
@@ -208,7 +214,7 @@
                                     <option value="idexpress">ID Express</option>
                                 </select>
                             </div>
-                            <div class="form-group" style="flex: 1;">
+                            <div class="form-group">
                                 <label>Layanan</label>
                                 <select name="service" id="serviceSelect" class="form-control" required
                                     onchange="updateTotalWithShipping()">
@@ -364,10 +370,9 @@
                                 <p style="font-size: 0.8rem; margin-bottom: 2px; color: var(--gray-400);">
                                     <?= $item->size ?> | <?= $item->color ?>
                                 </p>
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
                                     <span style="font-size: 0.85rem; color: var(--yellow);"><?= $item->quantity ?> x Rp.
                                         <?= number_format($item->product_price, 0, ',', '.') ?></span>
-                                    &nbsp;
                                     <span style="font-weight: 600; font-size: 0.9rem;">Rp.
                                         <?= number_format($item->product_price * $item->quantity, 0, ',', '.') ?></span>
                                 </div>
