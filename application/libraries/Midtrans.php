@@ -16,6 +16,29 @@ class Midtrans
         $this->is_production = $this->CI->config->item('midtrans_is_production');
     }
 
+    public function getStatus($order_id)
+    {
+        $url = $this->is_production
+            ? 'https://api.midtrans.com/v2/' . $order_id . '/status'
+            : 'https://api.sandbox.midtrans.com/v2/' . $order_id . '/status';
+
+        $auth = base64_encode($this->server_key . ':');
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Basic ' . $auth
+        ]);
+
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($result);
+    }
+
     public function getSnapToken($params)
     {
         $url = $this->is_production

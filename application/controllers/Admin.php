@@ -137,8 +137,18 @@ class Admin extends CI_Controller
 
     public function ship($id)
     {
-        $this->Order_model->update_status($id, 'shipped');
-        $this->session->set_flashdata('success', 'Order ditandai sebagai dikirim.');
+        $tracking_number = $this->input->post('tracking_number');
+        $data = [
+            'status' => 'shipped',
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        if ($this->input->post('tracking_number') !== NULL) {
+            $data['tracking_number'] = $tracking_number;
+        }
+
+        $this->Order_model->update($id, $data);
+        $this->session->set_flashdata('success', 'Order ditandai sebagai dikirim' . ($tracking_number ? ' dengan resi: ' . $tracking_number : '') . '.');
         redirect('admin/order/' . $id);
     }
 
@@ -222,6 +232,13 @@ class Admin extends CI_Controller
         $message .= "\xf0\x9f\x93\x8b Status: {$status_text[$order->status]}\n";
         $message .= "\xf0\x9f\x92\xb0 Total: Rp " . number_format($order->total, 0, ',', '.') . "\n\n";
         $message .= "\xf0\x9f\x94\x97 Cek status order:\n{$track_url}\n\n";
+
+        // Add payment link if Midtrans and pending
+        if ($order->payment_method === 'midtrans' && $order->status === 'pending') {
+            $payment_url = base_url('order/success/' . $order->order_code);
+            $message .= "\xf0\x9f\x92\xb3 Link Pembayaran:\n{$payment_url}\n\n";
+        }
+
         $message .= "Terima kasih sudah belanja di " . get_setting('site_name', 'Peweka') . "! \xf0\x9f\x99\x8f\n";
         $message .= "Culture & The Future \xe2\x9c\xa8";
 

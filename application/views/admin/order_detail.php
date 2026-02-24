@@ -146,6 +146,28 @@
     </a>
 </div>
 
+<?php if ($this->session->flashdata('success')): ?>
+    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert"
+        style="background: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.2); color: #28a745; border-radius: 12px; padding: 15px 20px;">
+        <i class="fas fa-check-circle me-2"></i> <?= $this->session->flashdata('success') ?>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"
+            style="float: right; background: none; border: none; color: white; opacity: 0.5;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+<?php endif; ?>
+
+<?php if ($this->session->flashdata('error')): ?>
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert"
+        style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.2); color: #dc3545; border-radius: 12px; padding: 15px 20px;">
+        <i class="fas fa-exclamation-circle me-2"></i> <?= $this->session->flashdata('error') ?>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"
+            style="float: right; background: none; border: none; color: white; opacity: 0.5;">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+<?php endif; ?>
+
 <div class="order-header-info">
     <div>
         <div class="order-code-badge"><?= $order->order_code ?></div>
@@ -313,6 +335,20 @@
                 </span>
             </div>
 
+            <?php if ($order->tracking_number): ?>
+                <div class="info-item" style="color: var(--yellow); font-weight: 700;">
+                    <span class="info-label">No. Resi</span>
+                    <span class="info-value">
+                        <?= htmlspecialchars($order->tracking_number) ?>
+                        <button type="button" class="btn btn-outline btn-sm ms-2"
+                            style="padding: 2px 8px; font-size: 0.7rem; border-color: var(--yellow); color: var(--yellow);"
+                            data-bs-toggle="modal" data-bs-target="#shipModal">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </span>
+                </div>
+            <?php endif; ?>
+
             <div style="margin-top: 20px;">
                 <div class="info-label" style="margin-bottom: 10px;">Bukti Pembayaran:</div>
                 <?php if ($order->payment_proof): ?>
@@ -346,10 +382,10 @@
                 <?php endif; ?>
 
                 <?php if ($order->status === 'confirmed'): ?>
-                    <a href="<?= base_url('admin/order/ship/' . $order->id) ?>" class="btn btn-purple action-btn"
-                        onclick="return confirm('Tandai sebagai telah dikirim?')">
+                    <button type="button" class="btn btn-purple action-btn" data-bs-toggle="modal"
+                        data-bs-target="#shipModal">
                         <i class="fas fa-truck"></i> Masukkan Resi / Kirim
-                    </a>
+                    </button>
                 <?php endif; ?>
 
                 <?php if ($order->status === 'shipped'): ?>
@@ -378,7 +414,53 @@
     </div>
 </div>
 
+<!-- Modal Masukkan Resi -->
+<div class="modal fade" id="shipModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"
+            style="background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+            <form action="<?= base_url('admin/order/ship/' . $order->id) ?>" method="POST">
+                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 20px;">
+                    <h5 class="modal-title" style="color: var(--yellow); font-weight: 700;">
+                        <i class="fas fa-truck me-2"></i>
+                        <?= $order->status === 'shipped' ? 'Update Nomor Resi' : 'Kirim Pesanan' ?>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 25px;">
+                    <div class="form-group mb-0">
+                        <label class="d-block mb-2"
+                            style="color: var(--gray-400); font-size: 0.85rem; font-weight: 600;">Nomor Resi
+                            Pengiriman</label>
+                        <input type="text" name="tracking_number" class="form-control" id="trackingInput"
+                            placeholder="Contoh: JNE123456789..." value="<?= $order->tracking_number ?>"
+                            style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 14px; color: #fff; width: 100%;">
+                        <small class="text-muted mt-3 d-block" style="font-size: 0.75rem; line-height: 1.4;">
+                            <i class="fas fa-info-circle me-1"></i>
+                            <?= $order->status === 'shipped' ? 'Ganti nomor resi jika ada perubahan.' : 'Status pesanan akan berubah menjadi <strong>"Sedang Dikirim"</strong>.' ?>
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.05); padding: 15px 20px;">
+                    <button type="button" class="btn btn-outline btn-sm" data-bs-dismiss="modal"
+                        style="border: none; color: var(--gray-500);">Batal</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm"
+                        style="border-radius: 8px; font-weight: 700;">
+                        <?= $order->status === 'shipped' ? 'Update Resi' : 'Konfirmasi Pengiriman' ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+    // Autofocus input when modal opens
+    document.getElementById('shipModal').addEventListener('shown.bs.modal', function () {
+        document.getElementById('trackingInput').focus();
+    });
+
     function fetchEstimate(orderId) {
         const btn = document.getElementById('btnFetch');
         const results = document.getElementById('estimateResults');
@@ -432,9 +514,9 @@
 
                                 const serviceName = s.service || s.service_name || s.name || 'Layanan';
                                 html += `<div style="display:flex; justify-content:space-between; margin-bottom:6px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.05); font-size: 0.85rem;">
-                                        <span><strong style="color:var(--yellow);">${courier.toUpperCase()}</strong> ${serviceName}</span>
-                                        <span style="font-weight:700;">Rp ${price.toLocaleString('id-ID')}</span>
-                                     </div>`;
+                <span><strong style="color:var(--yellow);">${courier.toUpperCase()}</strong> ${serviceName}</span>
+                <span style="font-weight:700;">Rp ${price.toLocaleString('id-ID')}</span>
+            </div>`;
                             });
                         }
                     }
@@ -449,7 +531,7 @@
                     results.innerHTML = '<div class="alert alert-danger" style="margin:0; padding:10px; font-size:0.8rem;">' + (res.message || 'Gagal memuat') + '</div>';
                 }
             })
-   .catch(err => {
+            .catch(err => {
                 results.innerHTML = '<div class="alert alert-danger" style="margin:0; padding:10px; font-size:0.8rem;">Sistem Error</div>';
             })
             .finally(() => {

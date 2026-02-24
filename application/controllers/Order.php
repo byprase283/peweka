@@ -263,6 +263,10 @@ class Order extends CI_Controller
                 'customer_details' => [
                     'first_name' => $order_data['customer_name'],
                     'phone' => $order_data['customer_phone'],
+                ],
+                'callbacks' => [
+                    'finish' => base_url('order/success/' . $order_code),
+                    'error' => base_url('order/success/' . $order_code)
                 ]
             ];
             $snap = $this->midtrans->getSnapToken($params);
@@ -323,6 +327,28 @@ class Order extends CI_Controller
         $data['midtrans_client_key'] = $this->config->item('midtrans_client_key');
         $data['title'] = 'Order Berhasil - ' . get_setting('site_name', 'Peweka');
 
+        // Auto-redirect if already paid (especially for Midtrans flow)
+        if ($order->payment_method === 'midtrans' && $order->status !== 'pending') {
+            redirect('order/track/' . $order->order_code);
+            return;
+        }
+
+        // Proactive Verification: If redirected back from Midtrans or just visiting, 
+        // check real-time status if we still think it's pending.
+        if ($order->payment_method === 'midtrans' && $order->status === 'pending') {
+            $this->load->library('midtrans');
+            $status_resp = $this->midtrans->getStatus($order->order_code);
+
+            if (isset($status_resp->transaction_status)) {
+                $status = $status_resp->transaction_status;
+                if ($status === 'settlement' || $status === 'capture') {
+                    $this->Order_model->update_status($order->id, 'confirmed');
+                    redirect('order/track/' . $order->order_code);
+                    return;
+                }
+            }
+        }
+
         $this->load->view('layout/header', $data);
         $this->load->view('order/success', $data);
         $this->load->view('layout/footer');
@@ -330,11 +356,36 @@ class Order extends CI_Controller
 
     public function track($code)
     {
-        $data['order'] = $this->Order_model->get_by_code($code);
-        if (!$data['order']) {
+        $order = $this->Order_model->get_by_code($code);
+        if (!$order) {
             show_404();
         }
+
+        $data['order'] = $order;
         $data['title'] = 'Tracking Order - ' . get_setting('site_name', 'Peweka');
+
+        // Provide payment details OR proactive check if still pending
+        if ($order->payment_method === 'midtrans' && $order->status === 'pending') {
+            $this->load->library('midtrans');
+            $status_resp = $this->midtrans->getStatus($order->order_code);
+
+            if (isset($status_resp->transaction_status)) {
+                $status = $status_resp->transaction_status;
+                if ($status === 'settlement' || $status === 'capture') {
+                    $this->Order_model->update_status($order->id, 'confirmed');
+                    // Refresh current order object for the view
+                    $order = $this->Order_model->get_by_code($code);
+                    $data['order'] = $order;
+                } else {
+                    $data['snap_token'] = $order->snap_token;
+                    $data['midtrans_client_key'] = $this->config->item('midtrans_client_key');
+                }
+            } else {
+                $data['snap_token'] = $order->snap_token;
+                $data['midtrans_client_key'] = $this->config->item('midtrans_client_key');
+            }
+        }
+
         $this->load->view('layout/header', $data);
         $this->load->view('order/track', $data);
         $this->load->view('layout/footer');
@@ -402,5 +453,33 @@ class Order extends CI_Controller
         }
 
         echo "OK";
+    }
+
+    public function track_history($code)
+    {
+        $order = $this->Order_model->get_by_code($code);
+        if (!$order) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Pesanan tidak ditemukan']);
+            return;
+        }
+
+        if (!$order->tracking_number || !$order->courier) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Informasi pengiriman belum tersedia']);
+            return;
+        }
+
+        $waybill = $this->rajaongkir->get_waybill($order->tracking_number, $order->courier);
+
+        log_message('error', 'Tracking Request - AWB: ' . $order->tracking_number . ' Courier: ' . $order->courier);
+        log_message('error', 'RajaOngkir Response: ' . json_encode($waybill));
+
+        header('Content-Type: application/json');
+        if (isset($waybill['data'])) {
+            echo json_encode(['success' => true, 'data' => $waybill['data']]);
+        } else {
+            echo json_encode(['success' => false, 'message' => isset($waybill['meta']['message']) ? $waybill['meta']['message'] : 'Gagal mengambil data pelacakan']);
+        }
     }
 }

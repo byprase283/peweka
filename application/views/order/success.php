@@ -73,8 +73,8 @@
                     </a>
                 <?php elseif ($order->payment_method === 'midtrans' && !empty($snap_token)): ?>
                     <button id="pay-button" class="btn btn-primary btn-lg btn-block"
-                        style="background-color: #0070BA; border-color: #0070BA; margin-bottom: 15px;">
-                        <i class="fas fa-credit-card"></i> Bayar Sekarang (Midtrans)
+                        style="background-color: #0070BA; border-color: #0070BA; margin-bottom: 15px; width: 100%;">
+                        <i class="fas fa-credit-card"></i> Bayar Sekarang
                     </button>
 
                     <script
@@ -84,10 +84,19 @@
                         var payButton = document.getElementById('pay-button');
                         payButton.addEventListener('click', function () {
                             window.snap.pay('<?= $snap_token ?>', {
-                                onSuccess: function (result) { window.location.href = '<?= base_url('order/track/' . $order->order_code) ?>'; },
-                                onPending: function (result) { window.location.href = '<?= base_url('order/track/' . $order->order_code) ?>'; },
-                                onError: function (result) { alert("Pembayaran gagal!"); },
-                                onClose: function () { alert('Kamu belum menyelesaikan pembayaran.'); }
+                                onSuccess: function (result) {
+                                    window.location.href = '<?= base_url('order/track/' . $order->order_code) ?>';
+                                },
+                                onPending: function (result) {
+                                    // User created VA/Pending: Stay on page as requested
+                                    alert("Silakan selesaikan pembayaran sesuai instruksi.");
+                                },
+                                onError: function (result) {
+                                    alert("Pembayaran gagal!");
+                                },
+                                onClose: function () {
+                                    alert('Anda belum menyelesaikan pembayaran. Silakan klik tombol "Bayar Sekarang" kembali.');
+                                }
                             });
                         });
                     </script>
@@ -102,14 +111,32 @@
                     </a>
                 <?php endif; ?>
 
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 5px;">
-                    <a href="<?= base_url('order/track/' . $order->order_code) ?>" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Cek Status
-                    </a>
-                    <a href="<?= base_url() ?>" class="btn btn-outline">
-                        <i class="fas fa-shopping-bag"></i> Belanja Lagi
-                    </a>
-                </div>
+                <?php
+                // Logic to "Force" payment: Hide other buttons if Midtrans and still pending
+                $show_extra_actions = true;
+                if ($order->payment_method === 'midtrans' && $order->status === 'pending') {
+                    $show_extra_actions = false;
+                }
+                ?>
+
+                <?php if ($show_extra_actions): ?>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 5px;">
+                        <a href="<?= base_url('order/track/' . $order->order_code) ?>" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Cek Status
+                        </a>
+                        <a href="<?= base_url() ?>" class="btn btn-outline">
+                            <i class="fas fa-shopping-bag"></i> Belanja Lagi
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div
+                        style="margin-top: 20px; padding: 15px; background: rgba(255, 68, 68, 0.1); border-radius: 12px; border: 1px solid rgba(255, 68, 68, 0.2);">
+                        <p style="color: #ff8888; font-size: 0.85rem; margin-bottom: 0;">
+                            <i class="fas fa-exclamation-circle"></i> Selesaikan pembayaran Anda untuk melihat detail status
+                            pesanan.
+                        </p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

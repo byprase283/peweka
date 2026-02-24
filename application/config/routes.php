@@ -18,6 +18,7 @@ $route['order/get_subdistricts/(:num)'] = 'Order/get_subdistricts/$1';
 $route['order/get_shipping_cost'] = 'Order/get_shipping_cost';
 $route['order/apply-voucher'] = 'Order/apply_voucher';
 $route['order/notification'] = 'Order/notification';
+$route['order/track-history/(:any)'] = 'Order/track_history/$1';
 
 // Admin Auth
 $route['admin/login'] = 'Auth/login';

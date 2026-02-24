@@ -33,23 +33,31 @@
             }
 
             .payment-method-card {
-                border: 2px solid #eee;
-                border-radius: 12px;
-                padding: 12px;
+                border: 2px solid var(--gray-700);
+                border-radius: 16px;
+                padding: 16px;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
                 position: relative;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
-                background: #fdfdfd;
+                background: var(--black-mid);
+                color: var(--gray-400);
+            }
+
+            .payment-method-card:hover {
+                border-color: rgba(255, 215, 0, 0.3);
+                background: #222;
+                transform: translateY(-2px);
             }
 
             .payment-method-card.active {
-                border-color: #ffcc00 !important;
-                background: rgba(255, 204, 0, 0.05);
-                box-shadow: 0 4px 15px rgba(255, 204, 0, 0.1);
+                border-color: var(--yellow) !important;
+                background: rgba(255, 215, 0, 0.05) !important;
+                color: var(--white) !important;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 215, 0, 0.1);
             }
 
             .payment-method-card input {
@@ -58,34 +66,37 @@
             }
 
             .method-icon {
-                font-size: 1.5rem;
-                margin-bottom: 8px;
-                color: #888;
+                font-size: 1.8rem;
+                margin-bottom: 10px;
+                color: var(--gray-500);
+                transition: all 0.3s ease;
             }
 
             .payment-method-card.active .method-icon {
-                color: #ffcc00;
+                color: var(--yellow);
+                transform: scale(1.1);
             }
 
             .method-name {
-                font-weight: 700;
-                font-size: 0.85rem;
+                font-weight: 800;
+                font-size: 0.9rem;
                 display: block;
-                color: #333;
+                font-family: var(--font-primary);
+                letter-spacing: 0.5px;
             }
 
             .method-desc {
-                font-size: 0.7rem;
-                color: #999;
+                font-size: 0.75rem;
+                opacity: 0.7;
             }
 
             .selected-check {
                 position: absolute;
-                top: 8px;
-                right: 8px;
-                color: #ffcc00;
+                top: 10px;
+                right: 10px;
+                color: var(--yellow);
                 display: none;
-                font-size: 0.8rem;
+                font-size: 1rem;
             }
 
             .payment-method-card.active .selected-check {
@@ -94,9 +105,17 @@
 
             .payment-section h3 {
                 font-family: var(--font-primary);
-                font-size: 1.3rem;
-                margin-top: 30px;
-                margin-bottom: 15px;
+                font-size: 1.4rem;
+                font-weight: 800;
+                margin-top: 40px;
+                margin-bottom: 20px;
+                color: var(--white);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .payment-section h3 i {
                 color: var(--yellow);
             }
         </style>
@@ -108,56 +127,180 @@
             </div>
         <?php endif; ?>
 
+        <style>
+            /* Checkout Desktop Redesign - High End Aesthetics */
+            .checkout-form-card {
+                padding: 40px 35px !important;
+            }
+
+            .checkout-form-card .form-control {
+                background-color: var(--black-mid) !important;
+                border: 2px solid var(--gray-700) !important;
+                color: var(--white) !important;
+                border-radius: 12px !important;
+                padding: 12px 18px !important;
+                font-size: 0.95rem !important;
+                transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+            }
+
+            .checkout-form-card .form-control:focus {
+                border-color: var(--yellow) !important;
+                box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.1) !important;
+                background-color: #222 !important;
+            }
+
+            .shipping-grid-custom {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            .shipping-full-row {
+                grid-column: span 2;
+            }
+
+            .form-group label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: var(--gray-400);
+                margin-bottom: 10px;
+                font-weight: 600;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .form-group label i {
+                color: var(--yellow);
+                font-size: 0.9rem;
+            }
+
+            .origin-highlight-box {
+                background: rgba(255, 215, 0, 0.05);
+                border: 1px solid rgba(255, 215, 0, 0.2);
+                border-radius: 16px;
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+
+            .origin-highlight-box label {
+                color: var(--yellow) !important;
+                font-weight: 800 !important;
+            }
+
+            .origin-highlight-box .form-control {
+                border-color: rgba(255, 215, 0, 0.4) !important;
+                font-weight: 700 !important;
+            }
+
+            @media (max-width: 768px) {
+                .shipping-grid-custom {
+                    grid-template-columns: 1fr;
+                }
+
+                .shipping-full-row {
+                    grid-column: span 1;
+                }
+            }
+
+            /* Section Divider Styling */
+            .section-header-modern {
+                border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+                padding-bottom: 15px;
+                margin-bottom: 30px;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .section-header-modern i {
+                background: var(--yellow);
+                color: var(--black);
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.1rem;
+                transform: rotate(-10deg);
+                box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+            }
+
+            .section-header-modern h3 {
+                margin: 0 !important;
+                font-family: var(--font-primary);
+                font-size: 1.4rem;
+                font-weight: 800;
+                color: var(--white);
+            }
+
+            .checkout-form-card select option {
+                background-color: var(--black-mid);
+                color: var(--white);
+            }
+
+            /* Target the placeholder option */
+            .checkout-form-card select option[value=""],
+            .checkout-form-card select option:first-child {
+                color: var(--gray-600);
+            }
+        </style>
+
         <form action="<?= base_url('order/store') ?>" method="post" enctype="multipart/form-data" id="checkoutForm">
             <div class="checkout-grid">
                 <!-- Left: Form -->
                 <div class="checkout-form-card">
-                    <h3
-                        style="font-family: var(--font-primary); font-size: 1.3rem; margin-bottom: 25px; color: var(--yellow);">
-                        <i class="fas fa-user"></i> Data Pemesan
-                    </h3>
-
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Nama Lengkap</label>
-                        <input type="text" name="customer_name" class="form-control" placeholder="Masukkan nama lengkap"
-                            required>
+                    <div class="section-header-modern">
+                        <i class="fas fa-user"></i>
+                        <h3>Data Pemesan</h3>
                     </div>
 
-                    <div class="form-group">
-                        <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp</label>
-                        <input type="text" name="customer_phone" class="form-control" placeholder="contoh: 08123456789"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label><i class="fas fa-map-marker-alt"></i> Alamat Lengkap</label>
-                        <textarea name="customer_address" class="form-control"
-                            placeholder="Nama jalan, RT/RW, kelurahan, kecamatan, kode pos" required></textarea>
-                    </div>
-
-                    <h3
-                        style="font-family: var(--font-primary); font-size: 1.3rem; margin-top: 30px; margin-bottom: 25px; color: var(--yellow);">
-                        <i class="fas fa-truck"></i> Informasi Pengiriman
-                    </h3>
-
-                    <div id="shippingInfoSection">
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label style="font-weight: 700; color: #ffcc00; display: block; margin-bottom: 10px;">
-                                <i class="fas fa-store"></i> Kirim Dari (Lokasi Toko)
-                            </label>
-                            <select name="origin_id" id="originSelect" class="form-control"
-                                style="border-color: #ffcc00; font-weight: 600;" onchange="calculateShipping()">
-                                <?php foreach ($stores as $s): ?>
-                                    <option value="<?= $s->id ?>" <?= $s->is_default ? 'selected' : '' ?>><?= $s->name ?> -
-                                        <?= $s->address ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
+                    <div class="shipping-grid-custom">
+                        <div class="form-group shipping-full-row">
+                            <label><i class="fas fa-user"></i> Nama Lengkap</label>
+                            <input type="text" name="customer_name" class="form-control"
+                                placeholder="Masukkan nama lengkap" required>
                         </div>
 
-                        <div class="form-row responsive-row" style="margin-bottom: 15px;">
+                        <div class="form-group shipping-full-row">
+                            <label><i class="fab fa-whatsapp"></i> Nomor WhatsApp</label>
+                            <input type="text" name="customer_phone" class="form-control"
+                                placeholder="contoh: 08123456789" required>
+                        </div>
+
+                        <div class="form-group shipping-full-row">
+                            <label><i class="fas fa-map-marker-alt"></i> Alamat Lengkap</label>
+                            <textarea name="customer_address" class="form-control"
+                                placeholder="Nama jalan, RT/RW, kelurahan, kecamatan, kode pos" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="section-header-modern" style="margin-top: 40px;">
+                        <i class="fas fa-truck"></i>
+                        <h3>Informasi Pengiriman</h3>
+                    </div>
+
+                    <div id="shippingInfoSection">
+                        <div class="origin-highlight-box">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label><i class="fas fa-store"></i> Kirim Dari (Lokasi Toko)</label>
+                                <select name="origin_id" id="originSelect" class="form-control"
+                                    onchange="calculateShipping()">
+                                    <?php foreach ($stores as $s): ?>
+                                        <option value="<?= $s->id ?>" <?= $s->is_default ? 'selected' : '' ?>><?= $s->name ?>
+                                            -
+                                            <?= $s->address ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="shipping-grid-custom">
                             <div class="form-group">
-                                <label>Provinsi</label>
+                                <label><i class="fas fa-map-marked-alt"></i> Provinsi</label>
                                 <select name="province_id" id="provinceSelect" class="form-control" required
                                     onchange="loadCities(this.value)">
                                     <option value="">Pilih Provinsi</option>
@@ -168,18 +311,16 @@
                                 <input type="hidden" name="province" id="provinceName">
                             </div>
                             <div class="form-group">
-                                <label>Kota/Kabupaten</label>
+                                <label><i class="fas fa-city"></i> Kota/Kabupaten</label>
                                 <select name="city_id" id="citySelect" class="form-control" required
                                     onchange="loadDistricts(this.value)">
                                     <option value="">Pilih Kota</option>
                                 </select>
                                 <input type="hidden" name="city" id="cityName">
                             </div>
-                        </div>
 
-                        <div class="form-row responsive-row" style="margin-bottom: 15px;">
                             <div class="form-group">
-                                <label>Kecamatan</label>
+                                <label><i class="fas fa-map-pins"></i> Kecamatan</label>
                                 <select name="district_id" id="districtSelect" class="form-control" required
                                     onchange="loadSubdistricts(this.value)">
                                     <option value="">Pilih Kecamatan</option>
@@ -187,18 +328,16 @@
                                 <input type="hidden" name="district" id="districtName">
                             </div>
                             <div class="form-group">
-                                <label>Desa/Kelurahan</label>
+                                <label><i class="fas fa-home"></i> Desa/Kelurahan</label>
                                 <select name="subdistrict_id" id="subdistrictSelect" class="form-control" required
                                     onchange="updateSubdistrictName(this)">
                                     <option value="">Pilih Desa</option>
                                 </select>
                                 <input type="hidden" name="subdistrict" id="subdistrictName">
                             </div>
-                        </div>
 
-                        <div class="form-row responsive-row" style="margin-bottom: 15px;">
                             <div class="form-group">
-                                <label>Kurir</label>
+                                <label><i class="fas fa-truck-loading"></i> Kurir</label>
                                 <select name="courier" id="courierSelect" class="form-control" required
                                     onchange="calculateShipping()">
                                     <option value="">Pilih Kurir</option>
@@ -215,7 +354,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Layanan</label>
+                                <label><i class="fas fa-concierge-bell"></i> Layanan</label>
                                 <select name="service" id="serviceSelect" class="form-control" required
                                     onchange="updateTotalWithShipping()">
                                     <option value="">Pilih Layanan</option>

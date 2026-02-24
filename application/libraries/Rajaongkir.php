@@ -110,6 +110,76 @@ class Rajaongkir
         return $this->_request('calculate/domestic-cost', 'POST', $params);
     }
 
+    public function get_waybill($resi, $courier)
+    {
+        if ($this->use_mock) {
+            return [
+                "meta" => ["message" => "Mock Waybill Data", "code" => 200, "status" => "success"],
+                "data" => [
+                    "summary" => [
+                        "waybill_number" => $resi,
+                        "courier_name" => strtoupper($courier),
+                        "status" => "DELIVERED"
+                    ],
+                    "manifest" => [
+                        ["manifest_description" => "Paket telah diterima oleh [Sodara Rian - Purwakarta]", "manifest_date" => date('Y-m-d'), "manifest_time" => "14:20"],
+                        ["manifest_description" => "Paket sedang dibawa kurir menuju alamat tujuan", "manifest_date" => date('Y-m-d'), "manifest_time" => "09:15"],
+                        ["manifest_description" => "Paket telah sampai di Hub Purwakarta", "manifest_date" => date('Y-m-d', strtotime('-1 day')), "manifest_time" => "22:10"],
+                        ["manifest_description" => "Paket dalam perjalanan dari Bekasi", "manifest_date" => date('Y-m-d', strtotime('-1 day')), "manifest_time" => "18:30"],
+                        ["manifest_description" => "Paket telah di pick up di Bekasi", "manifest_date" => date('Y-m-d', strtotime('-1 day')), "manifest_time" => "13:00"],
+                    ]
+                ]
+            ];
+        }
+
+        // Mapping common courier aliases to RajaOngkir codes
+        $courier_map = [
+            'j&t' => 'jnt',
+            'jnt' => 'jnt',
+            'jt' => 'jnt',
+            'jne' => 'jne',
+            'pos' => 'pos',
+            'tiki' => 'tiki',
+            'sicepat' => 'sicepat',
+            'wa' => 'wahana',
+            'wahana' => 'wahana',
+            'ninja' => 'ninja',
+            'lion' => 'lion',
+            'idexpress' => 'ide',
+            'ide' => 'ide',
+            'anteraja' => 'anteraja',
+            'sap' => 'sap',
+            'first' => 'first',
+            'spx' => 'spx',
+            'shopee' => 'spx',
+            'shopeexpress' => 'spx'
+        ];
+
+        $courier_code = strtolower($courier);
+
+        $resi_upper = strtoupper($resi);
+        if (strpos($resi_upper, 'SPXID') === 0) {
+            return [
+                "meta" => ["message" => "Shopee Express (SPX) belum didukung oleh API Komerce Anda.", "code" => 400, "status" => "error"],
+                "data" => null
+            ];
+        }
+
+        if (preg_match('/^[0-9]{12}$/', $resi) || strpos($resi_upper, 'JP') === 0 || strpos($resi_upper, 'JD') === 0 || strpos($resi_upper, 'JX') === 0) {
+            $courier_code = 'jnt';
+        }
+
+        if (isset($courier_map[$courier_code])) {
+            $courier_code = $courier_map[$courier_code];
+        }
+
+        $params = [
+            'awb' => $resi,
+            'courier' => $courier_code
+        ];
+        return $this->_request('track/waybill', 'POST', $params);
+    }
+
     protected function _request($endpoint, $method = 'GET', $params = [])
     {
         $url = "https://rajaongkir.komerce.id/api/v1/" . $endpoint;
