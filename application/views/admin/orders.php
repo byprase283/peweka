@@ -208,15 +208,6 @@
         gap: 8px;
     }
 
-    .btn-icon {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border-radius: 10px;
-    }
 
     .empty-state {
         padding: 60px 20px;

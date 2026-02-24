@@ -155,7 +155,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="<?= base_url('admin/category/delete/' . $category->id) ?>"
-                                    class="btn btn-danger btn-sm btn-icon" style="width: 32px; height: 32px;"
+                                    class="btn btn-danger btn-sm btn-icon"
                                     onclick="return confirm('Yakin ingin menghapus kategori ini?')">
                                     <i class="fas fa-trash" style="font-size: 0.8rem;"></i>
                                 </a>

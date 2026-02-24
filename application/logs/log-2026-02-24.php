@@ -55,3 +55,15 @@ ERROR - 2026-02-24 14:37:15 --> 404 Page Not Found: Assets/img
 ERROR - 2026-02-24 14:37:17 --> 404 Page Not Found: Assets/img
 ERROR - 2026-02-24 14:37:27 --> 404 Page Not Found: Assets/img
 ERROR - 2026-02-24 14:41:00 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:54:00 --> Your server does not support the GD function required to process this type of image.
+ERROR - 2026-02-24 14:54:00 --> JPG images are not supported.
+ERROR - 2026-02-24 14:59:22 --> Your server does not support the GD function required to process this type of image.
+ERROR - 2026-02-24 14:59:22 --> JPG images are not supported.
+ERROR - 2026-02-24 14:59:22 --> Your server does not support the GD function required to process this type of image.
+ERROR - 2026-02-24 14:59:22 --> JPG images are not supported.
+ERROR - 2026-02-24 14:59:22 --> Your server does not support the GD function required to process this type of image.
+ERROR - 2026-02-24 14:59:22 --> JPG images are not supported.
+ERROR - 2026-02-24 14:59:23 --> Your server does not support the GD function required to process this type of image.
+ERROR - 2026-02-24 14:59:23 --> JPG images are not supported.
+ERROR - 2026-02-24 14:59:23 --> Your server does not support the GD function required to process this type of image.
+ERROR - 2026-02-24 14:59:23 --> JPG images are not supported.

@@ -181,8 +181,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="<?= base_url('admin/voucher/delete/' . $v->id) ?>"
-                                    class="btn btn-danger btn-sm btn-icon" style="width: 32px; height: 32px;"
-                                    onclick="return confirm('Hapus voucher ini?')">
+                                    class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Hapus voucher ini?')">
                                     <i class="fas fa-trash" style="font-size: 0.8rem;"></i>
                                 </a>
                             </div>

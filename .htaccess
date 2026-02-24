@@ -11,6 +11,27 @@
     RewriteRule ^(.*)$ index.php/$1 [L]
 </IfModule>
 
+<IfModule mod_php.c>
+    # Increase upload limits for modern high-res images
+    php_value upload_max_filesize 64M
+    php_value post_max_size 64M
+    php_value memory_limit 256M
+</IfModule>
+
+<IfModule mod_php7.c>
+    # Increase upload limits for modern high-res images (PHP 7+)
+    php_value upload_max_filesize 64M
+    php_value post_max_size 64M
+    php_value memory_limit 256M
+</IfModule>
+
+<IfModule mod_php8.c>
+    # Increase upload limits for modern high-res images (PHP 8+)
+    php_value upload_max_filesize 64M
+    php_value post_max_size 64M
+    php_value memory_limit 256M
+</IfModule>
+
 <IfModule mod_headers.c>
     # Allow cross-protocol Ajax from behind Cloudflare tunnel
     Header always set Access-Control-Allow-Origin "*"

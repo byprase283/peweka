@@ -469,6 +469,7 @@
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             padding: 10px 20px;
             border-radius: 8px;
@@ -528,6 +529,13 @@
         .btn-sm {
             padding: 6px 14px;
             font-size: 0.8rem;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0 !important;
+            flex-shrink: 0;
         }
 
         .btn-block {

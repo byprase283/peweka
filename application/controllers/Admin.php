@@ -316,12 +316,13 @@ class Admin extends CI_Controller
             $config_upload = [
                 'upload_path' => './assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 10240,
+                'max_size' => 0,
                 'encrypt_name' => TRUE
             ];
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $image_name = $this->upload->data('file_name');
+                $this->_resize_image('./assets/img/products/' . $image_name);
             } else {
                 $upload_error = $this->upload->display_errors('', '');
                 $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error);
@@ -373,7 +374,7 @@ class Admin extends CI_Controller
                     'upload_path' =>
                         './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                    'max_size' => 10240,
+                    'max_size' => 0,
                     'encrypt_name' => TRUE
                 ];
 
@@ -381,6 +382,7 @@ class Admin extends CI_Controller
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
+                    $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
                     $this->Product_model->add_image([
                         'product_id' => $product_id,
                         'image' => $gallery_data['file_name']
@@ -434,12 +436,13 @@ class Admin extends CI_Controller
             $config_upload = [
                 'upload_path' => './assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 10240,
+                'max_size' => 0,
                 'encrypt_name' => TRUE
             ];
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $update_data['image'] = $this->upload->data('file_name');
+                $this->_resize_image('./assets/img/products/' . $update_data['image']);
             } else {
                 $upload_error = $this->upload->display_errors('', '');
                 $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error);
@@ -485,7 +488,7 @@ class Admin extends CI_Controller
                     'upload_path' =>
                         './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                    'max_size' => 10240,
+                    'max_size' => 0,
                     'encrypt_name' => TRUE
                 ];
 
@@ -493,6 +496,7 @@ class Admin extends CI_Controller
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
+                    $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
                     $this->Product_model->add_image([
                         'product_id' => $id,
                         'image' => $gallery_data['file_name']
@@ -995,5 +999,33 @@ class Admin extends CI_Controller
         $this->Store_model->update($id, $data);
         $this->session->set_flashdata('success', 'Data toko berhasil diperbarui!');
         redirect('admin/stores');
+    }
+
+    /**
+     * Helper to resize image
+     * @param string $path Full path to image file
+     * @param int $width Max width
+     * @param int $height Max height
+     */
+    private function _resize_image($path, $width = 800, $height = 800)
+    {
+        $config['image_library'] = 'gd2';
+        $config['source_image'] = $path;
+        $config['maintain_ratio'] = TRUE;
+        $config['width'] = $width;
+        $config['height'] = $height;
+
+        if (!isset($this->image_lib)) {
+            $this->load->library('image_lib');
+        }
+
+        $this->image_lib->initialize($config);
+
+        if (!$this->image_lib->resize()) {
+            return $this->image_lib->display_errors();
+        }
+
+        $this->image_lib->clear();
+        return TRUE;
     }
 }
