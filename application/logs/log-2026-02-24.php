@@ -113,3 +113,5 @@ ERROR - 2026-02-24 20:23:52 --> Tracking Request - AWB: 120040042107018 Courier:
 ERROR - 2026-02-24 20:23:52 --> RajaOngkir Response: {"meta":{"message":"Invalid Awb","code":404,"status":"error"},"data":null}
 ERROR - 2026-02-24 20:28:21 --> Tracking Request - AWB: 120040042107018 Courier: jne
 ERROR - 2026-02-24 20:28:21 --> RajaOngkir Response: {"meta":{"message":"Invalid Awb","code":404,"status":"error"},"data":null}
+ERROR - 2026-02-24 20:31:18 --> Tracking Request - AWB: 120040042107018 Courier: jne
+ERROR - 2026-02-24 20:31:18 --> RajaOngkir Response: {"meta":{"message":"Invalid Awb","code":404,"status":"error"},"data":null}
