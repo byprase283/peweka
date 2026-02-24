@@ -1,6 +1,20 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/**
+ * @property CI_DB_query_builder $db
+ * @property CI_Input $input
+ * @property CI_Session $session
+ * @property CI_Upload $upload
+ * @property Order_model $Order_model
+ * @property Product_model $Product_model
+ * @property Category_model $Category_model
+ * @property Voucher_model $Voucher_model
+ * @property Store_model $Store_model
+ * @property Settings_model $Settings_model
+ * @property CI_Pagination $pagination
+ * @property CI_Image_lib $image_lib
+ */
 class Admin extends CI_Controller
 {
 
@@ -21,8 +35,8 @@ class Admin extends CI_Controller
     }
 
     // ==================
-    // DASHBOARD
-    // ==================
+// DASHBOARD
+// ==================
     public function index()
     {
         $data['title'] = 'Dashboard - ' . get_setting('site_name', 'Peweka') . ' Admin';
@@ -40,13 +54,57 @@ class Admin extends CI_Controller
     }
 
     // ==================
-    // ORDERS
-    // ==================
+// ORDERS
+// ==================
     public function orders($status = NULL)
     {
+        $this->load->library('pagination');
+
+        $per_page = 5;
+        $total_rows = $this->Order_model->count_by_status($status);
+
+        $page = $this->input->get('page') ?: 1;
+        $offset = ($page - 1) * $per_page;
+
+        $config['base_url'] = base_url('admin/orders' . ($status ? '/' . $status : ''));
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = $per_page;
+        $config['page_query_string'] = TRUE;
+        $config['query_string_segment'] = 'page';
+        $config['use_page_numbers'] = TRUE;
+        $config['reuse_query_string'] = TRUE;
+
+        // Professional Pagination Styling
+        $config['full_tag_open'] = '<nav>
+    <ul class="admin-pagination">';
+        $config['full_tag_close'] = '</ul>
+</nav>';
+        $config['first_link'] = '<i class="fas fa-chevron-double-left"></i>';
+        $config['last_link'] = '<i class="fas fa-chevron-double-right"></i>';
+        $config['next_link'] = 'Next&nbsp;<i class="fas fa-chevron-right"></i>';
+        $config['prev_link'] = '<i class="fas fa-chevron-left"></i>&nbsp;Prev';
+        $config['cur_tag_open'] = '<li class="active"><span>';
+        $config['cur_tag_close'] = '</span></li>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['next_tag_open'] = '<li>';
+        $config['next_tag_close'] = '</li>';
+        $config['prev_tag_open'] = '<li>';
+        $config['prev_tag_close'] = '</li>';
+        $config['first_tag_open'] = '<li>';
+        $config['first_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li>';
+        $config['last_tag_close'] = '</li>';
+
+        $this->pagination->initialize($config);
+
         $data['title'] = 'Pesanan - ' . get_setting('site_name', 'Peweka') . ' Admin';
-        $data['orders'] = $this->Order_model->get_all($status);
+        $data['orders'] = $this->Order_model->get_all($status, $per_page, $offset);
+        $data['total_rows'] = $total_rows;
+        $data['per_page'] = $per_page;
+        $data['page_number'] = $page;
         $data['current_status'] = $status;
+        $data['pagination'] = $this->pagination->create_links();
         $data['page'] = 'orders';
         $this->load->view('admin/layout', $data);
     }
@@ -91,6 +149,57 @@ class Admin extends CI_Controller
         redirect('admin/order/' . $id);
     }
 
+    public function update_shipping($id)
+    {
+        $shipping_cost = (float) $this->input->post('shipping_cost');
+        $order = $this->Order_model->get_by_id($id);
+        if (!$order)
+            show_404();
+
+        $total = $order->subtotal - $order->discount + $shipping_cost;
+
+        $this->Order_model->update($id, [
+            'shipping_cost' => $shipping_cost,
+            'total' => $total,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $this->session->set_flashdata('success', 'Biaya ongkir berhasil diperbarui.');
+        redirect('admin/order/' . $id);
+    }
+
+    public function get_shipping_estimate($id)
+    {
+        $order = $this->Order_model->get_by_id($id);
+        if (!$order) {
+            echo json_encode(['success' => false, 'message' => 'Order not found']);
+            return;
+        }
+
+        // Standard weight 1kg
+        $weight = 1000;
+        $couriers = ['jne', 'pos', 'tiki', 'jnt', 'sicepat'];
+        $results = [];
+
+        // Fallback origin (default store or first store)
+        $store = $this->Store_model->get_by_id($order->store_id) ?: $this->Store_model->get_default();
+        $origin = $store ? ($store->subdistrict_id ?: $store->city_id) : 532;
+        $originType = ($store && $store->subdistrict_id) ? 'subdistrict' : 'city';
+
+        $destination = $order->subdistrict_id ?: $order->city_id;
+        $destinationType = $order->subdistrict_id ? 'subdistrict' : 'city';
+
+        foreach ($couriers as $courier) {
+            $cost = $this->rajaongkir->get_cost($origin, $destination, $weight, $courier, $originType, $destinationType);
+            if (isset($cost['data'])) {
+                $results[$courier] = $cost['data'];
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'data' => $results]);
+    }
+
     public function send_wa($id)
     {
         $order = $this->Order_model->get_by_id($id);
@@ -127,12 +236,56 @@ class Admin extends CI_Controller
     }
 
     // ==================
-    // PRODUCTS
-    // ==================
+// PRODUCTS
+// ==================
     public function products()
     {
+        $this->load->library('pagination');
+
+        $per_page = 5;
+        $total_rows = $this->Product_model->count_all(FALSE);
+
+        $page = $this->input->get('page') ?: 1;
+        $offset = ($page - 1) * $per_page;
+
+        $config['base_url'] = base_url('admin/products');
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = $per_page;
+        $config['page_query_string'] = TRUE;
+        $config['query_string_segment'] = 'page';
+        $config['use_page_numbers'] = TRUE;
+        $config['reuse_query_string'] = TRUE;
+
+        // Professional Pagination Styling
+        $config['full_tag_open'] = '<nav>
+    <ul class="admin-pagination">';
+        $config['full_tag_close'] = '</ul>
+</nav>';
+        $config['first_link'] = '<i class="fas fa-chevron-double-left"></i>';
+        $config['last_link'] = '<i class="fas fa-chevron-double-right"></i>';
+        $config['next_link'] = 'Next&nbsp;<i class="fas fa-chevron-right"></i>';
+        $config['prev_link'] = '<i class="fas fa-chevron-left"></i>&nbsp;Prev';
+        $config['cur_tag_open'] = '<li class="active"><span>';
+        $config['cur_tag_close'] = '</span></li>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['next_tag_open'] = '<li>';
+        $config['next_tag_close'] = '</li>';
+        $config['prev_tag_open'] = '<li>';
+        $config['prev_tag_close'] = '</li>';
+        $config['first_tag_open'] = '<li>';
+        $config['first_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li>';
+        $config['last_tag_close'] = '</li>';
+
+        $this->pagination->initialize($config);
+
         $data['title'] = 'Produk - ' . get_setting('site_name', 'Peweka') . ' Admin';
-        $data['products'] = $this->Product_model->get_all(FALSE);
+        $data['products'] = $this->Product_model->get_all(FALSE, NULL, $per_page, $offset);
+        $data['total_rows'] = $total_rows;
+        $data['per_page'] = $per_page;
+        $data['page_number'] = $page;
+        $data['pagination'] = $this->pagination->create_links();
         $data['page'] = 'products';
         $this->load->view('admin/layout', $data);
     }
@@ -190,13 +343,14 @@ class Admin extends CI_Controller
         if ($sizes) {
             for ($i = 0; $i < count($sizes); $i++) {
                 if (!empty($sizes[$i]) && !empty($colors[$i])) {
-                    $this->Product_model->add_variant([
-                        'product_id' => $product_id,
-                        'size' => $sizes[$i],
-                        'color' => $colors[$i],
-                        'color_hex' => $hexes[$i] ?: '#000000',
-                        'stock' => (int) $stocks[$i]
-                    ]);
+                    $this->
+                        Product_model->add_variant([
+                                'product_id' => $product_id,
+                                'size' => $sizes[$i],
+                                'color' => $colors[$i],
+                                'color_hex' => $hexes[$i] ?: '#000000',
+                                'stock' => (int) $stocks[$i]
+                            ]);
                 }
             }
         }
@@ -210,9 +364,9 @@ class Admin extends CI_Controller
                 $_FILES['gallery_file']['tmp_name'] = $_FILES['gallery']['tmp_name'][$i];
                 $_FILES['gallery_file']['error'] = $_FILES['gallery']['error'][$i];
                 $_FILES['gallery_file']['size'] = $_FILES['gallery']['size'][$i];
-
                 $config_gallery = [
-                    'upload_path' => './assets/img/products/',
+                    'upload_path' =>
+                        './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
                     'max_size' => 2048,
                     'encrypt_name' => TRUE
@@ -291,13 +445,14 @@ class Admin extends CI_Controller
         if ($sizes) {
             for ($i = 0; $i < count($sizes); $i++) {
                 if (!empty($sizes[$i]) && !empty($colors[$i])) {
-                    $this->Product_model->add_variant([
-                        'product_id' => $id,
-                        'size' => $sizes[$i],
-                        'color' => $colors[$i],
-                        'color_hex' => $hexes[$i] ?: '#000000',
-                        'stock' => (int) $stocks[$i]
-                    ]);
+                    $this->
+                        Product_model->add_variant([
+                                'product_id' => $id,
+                                'size' => $sizes[$i],
+                                'color' => $colors[$i],
+                                'color_hex' => $hexes[$i] ?: '#000000',
+                                'stock' => (int) $stocks[$i]
+                            ]);
                 }
             }
         }
@@ -311,9 +466,9 @@ class Admin extends CI_Controller
                 $_FILES['gallery_file']['tmp_name'] = $_FILES['gallery']['tmp_name'][$i];
                 $_FILES['gallery_file']['error'] = $_FILES['gallery']['error'][$i];
                 $_FILES['gallery_file']['size'] = $_FILES['gallery']['size'][$i];
-
                 $config_gallery = [
-                    'upload_path' => './assets/img/products/',
+                    'upload_path' =>
+                        './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
                     'max_size' => 2048,
                     'encrypt_name' => TRUE
@@ -337,7 +492,7 @@ class Admin extends CI_Controller
 
     public function product_delete_image($image_id, $product_id)
     {
-        $image = $this->db->get_where('product_images', ['id' => $image_id])->row();
+        $image = $this->Product_model->get_image_by_id($image_id);
         if ($image) {
             $path = './assets/img/products/' . $image->image;
             if (file_exists($path)) {
@@ -361,8 +516,52 @@ class Admin extends CI_Controller
     // ==================
     public function categories()
     {
+        $this->load->library('pagination');
+
+        $per_page = 5;
+        $total_rows = $this->Category_model->count_all();
+
+        $page = $this->input->get('page') ?: 1;
+        $offset = ($page - 1) * $per_page;
+
+        $config['base_url'] = base_url('admin/categories');
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = $per_page;
+        $config['page_query_string'] = TRUE;
+        $config['query_string_segment'] = 'page';
+        $config['use_page_numbers'] = TRUE;
+        $config['reuse_query_string'] = TRUE;
+
+        // Professional Pagination Styling
+        $config['full_tag_open'] = '<nav>
+                    <ul class="admin-pagination">';
+        $config['full_tag_close'] = '</ul>
+                </nav>';
+        $config['first_link'] = '<i class="fas fa-chevron-double-left"></i>';
+        $config['last_link'] = '<i class="fas fa-chevron-double-right"></i>';
+        $config['next_link'] = 'Next&nbsp;<i class="fas fa-chevron-right"></i>';
+        $config['prev_link'] = '<i class="fas fa-chevron-left"></i>&nbsp;Prev';
+        $config['cur_tag_open'] = '<li class="active"><span>';
+        $config['cur_tag_close'] = '</span></li>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['next_tag_open'] = '<li>';
+        $config['next_tag_close'] = '</li>';
+        $config['prev_tag_open'] = '<li>';
+        $config['prev_tag_close'] = '</li>';
+        $config['first_tag_open'] = '<li>';
+        $config['first_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li>';
+        $config['last_tag_close'] = '</li>';
+
+        $this->pagination->initialize($config);
+
         $data['title'] = 'Kategori - ' . get_setting('site_name', 'Peweka') . ' Admin';
-        $data['categories'] = $this->Category_model->get_all();
+        $data['categories'] = $this->Category_model->get_all($per_page, $offset);
+        $data['total_rows'] = $total_rows;
+        $data['per_page'] = $per_page;
+        $data['page_number'] = $page;
+        $data['pagination'] = $this->pagination->create_links();
         $data['page'] = 'categories';
         $this->load->view('admin/layout', $data);
     }
@@ -443,8 +642,52 @@ class Admin extends CI_Controller
     // ==================
     public function vouchers()
     {
+        $this->load->library('pagination');
+
+        $per_page = 5;
+        $total_rows = $this->Voucher_model->count_all();
+
+        $page = $this->input->get('page') ?: 1;
+        $offset = ($page - 1) * $per_page;
+
+        $config['base_url'] = base_url('admin/vouchers');
+        $config['total_rows'] = $total_rows;
+        $config['per_page'] = $per_page;
+        $config['page_query_string'] = TRUE;
+        $config['query_string_segment'] = 'page';
+        $config['use_page_numbers'] = TRUE;
+        $config['reuse_query_string'] = TRUE;
+
+        // Professional Pagination Styling
+        $config['full_tag_open'] = '<nav>
+                    <ul class="admin-pagination">';
+        $config['full_tag_close'] = '</ul>
+                </nav>';
+        $config['first_link'] = '<i class="fas fa-chevron-double-left"></i>';
+        $config['last_link'] = '<i class="fas fa-chevron-double-right"></i>';
+        $config['next_link'] = 'Next&nbsp;<i class="fas fa-chevron-right"></i>';
+        $config['prev_link'] = '<i class="fas fa-chevron-left"></i>&nbsp;Prev';
+        $config['cur_tag_open'] = '<li class="active"><span>';
+        $config['cur_tag_close'] = '</span></li>';
+        $config['num_tag_open'] = '<li>';
+        $config['num_tag_close'] = '</li>';
+        $config['next_tag_open'] = '<li>';
+        $config['next_tag_close'] = '</li>';
+        $config['prev_tag_open'] = '<li>';
+        $config['prev_tag_close'] = '</li>';
+        $config['first_tag_open'] = '<li>';
+        $config['first_tag_close'] = '</li>';
+        $config['last_tag_open'] = '<li>';
+        $config['last_tag_close'] = '</li>';
+
+        $this->pagination->initialize($config);
+
         $data['title'] = 'Voucher - ' . get_setting('site_name', 'Peweka') . ' Admin';
-        $data['vouchers'] = $this->Voucher_model->get_all();
+        $data['vouchers'] = $this->Voucher_model->get_all($per_page, $offset);
+        $data['total_rows'] = $total_rows;
+        $data['per_page'] = $per_page;
+        $data['page_number'] = $page;
+        $data['pagination'] = $this->pagination->create_links();
         $data['page'] = 'vouchers';
         $this->load->view('admin/layout', $data);
     }
@@ -547,6 +790,7 @@ class Admin extends CI_Controller
 
         $data = [
             'site_name' => $this->input->post('site_name'),
+            'site_description' => $this->input->post('site_description'),
             'site_about' => $this->input->post('site_about'),
             'instagram_url' => $this->input->post('instagram_url'),
             'facebook_url' => $this->input->post('facebook_url'),
@@ -556,7 +800,10 @@ class Admin extends CI_Controller
             'address' => $this->input->post('address'),
             'theme_color' => $this->input->post('theme_color'),
             'theme_font_heading' => $this->input->post('theme_font_heading'),
-            'theme_font_body' => $this->input->post('theme_font_body')
+            'theme_font_body' => $this->input->post('theme_font_body'),
+            'theme_preset' => $this->input->post('theme_preset'),
+            'theme_bg_color' => $this->input->post('theme_bg_color'),
+            'theme_text_color' => $this->input->post('theme_text_color')
         ];
 
         // Handle Logo Upload
@@ -583,6 +830,49 @@ class Admin extends CI_Controller
             }
         }
 
+        // Handle Favicon Upload
+        if (!empty($_FILES['site_favicon']['name'])) {
+            $config['upload_path'] = './assets/img/';
+            $config['allowed_types'] = 'gif|jpg|png|jpeg|webp|ico';
+            $config['max_size'] = 1024;
+            $config['file_name'] = 'favicon_' . time();
+
+            $this->load->library('upload', $config);
+            $this->upload->initialize($config);
+
+            if ($this->upload->do_upload('site_favicon')) {
+                $upload_data = $this->upload->data();
+                $favicon_name = $upload_data['file_name'];
+
+                // Resize Favicon to 32x32
+                $resize_config['image_library'] = 'gd2';
+                $resize_config['source_image'] = './assets/img/' . $favicon_name;
+                $resize_config['maintain_ratio'] = TRUE;
+                $resize_config['width'] = 32;
+                $resize_config['height'] = 32;
+
+                $this->load->library('image_lib', $resize_config);
+                $this->image_lib->resize();
+
+                $data['site_favicon'] = $favicon_name;
+
+                // Optional: Delete old favicon
+                $old_settings = $this->Settings_model->get_settings();
+                if (
+                    $old_settings->site_favicon != 'favicon.png' && file_exists('./assets/img/' .
+                        $old_settings->site_favicon)
+                ) {
+                    unlink('./assets/img/' . $old_settings->site_favicon);
+                }
+            } else {
+                $this->session->set_flashdata('error', 'Gagal upload favicon: ' . $this->upload->display_errors(
+                    '',
+                    ''
+                ));
+                redirect('admin/settings');
+            }
+        }
+
         $this->Settings_model->update_settings($data);
         $this->session->set_flashdata('success', 'Pengaturan berhasil diperbarui');
         redirect('admin/settings');
@@ -599,7 +889,11 @@ class Admin extends CI_Controller
     {
         $this->form_validation->set_rules('old_password', 'Password Lama', 'required');
         $this->form_validation->set_rules('new_password', 'Password Baru', 'required|min_length[5]');
-        $this->form_validation->set_rules('confirm_password', 'Konfirmasi Password Baru', 'required|matches[new_password]');
+        $this->form_validation->set_rules(
+            'confirm_password',
+            'Konfirmasi Password Baru',
+            'required|matches[new_password]'
+        );
 
         if ($this->form_validation->run() == FALSE) {
             $this->change_password();
@@ -675,7 +969,7 @@ class Admin extends CI_Controller
 
         // If this is set as default, unset others first
         if ($data['is_default']) {
-            $this->db->update('stores', ['is_default' => 0]);
+            $this->Store_model->reset_defaults();
         }
 
         $this->Store_model->update($id, $data);

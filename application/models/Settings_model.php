@@ -28,6 +28,11 @@ class Settings_model extends CI_Model
                 `theme_color` VARCHAR(20) DEFAULT '#FFD700',
                 `theme_font_heading` VARCHAR(100) DEFAULT 'Outfit',
                 `theme_font_body` VARCHAR(100) DEFAULT 'Inter',
+                `site_favicon` VARCHAR(255) DEFAULT 'favicon.png',
+                `site_description` TEXT,
+                `theme_preset` VARCHAR(50) DEFAULT 'peweka-gold',
+                `theme_bg_color` VARCHAR(20) DEFAULT '#0a0a0a',
+                `theme_text_color` VARCHAR(20) DEFAULT '#ffffff',
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )");
             $this->db->insert('site_settings', ['id' => 1, 'site_name' => 'Peweka']);
@@ -42,6 +47,21 @@ class Settings_model extends CI_Model
         }
         if (!$this->db->field_exists('theme_font_body', 'site_settings')) {
             $this->db->query("ALTER TABLE `site_settings` ADD `theme_font_body` VARCHAR(100) DEFAULT 'Inter' AFTER `theme_font_heading` ");
+        }
+        if (!$this->db->field_exists('site_favicon', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `site_favicon` VARCHAR(255) DEFAULT 'favicon.png' AFTER `theme_font_body` ");
+        }
+        if (!$this->db->field_exists('site_description', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `site_description` TEXT AFTER `site_favicon` ");
+        }
+        if (!$this->db->field_exists('theme_preset', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `theme_preset` VARCHAR(50) DEFAULT 'peweka-gold' AFTER `site_description` ");
+        }
+        if (!$this->db->field_exists('theme_bg_color', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `theme_bg_color` VARCHAR(20) DEFAULT '#0a0a0a' AFTER `theme_preset` ");
+        }
+        if (!$this->db->field_exists('theme_text_color', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `theme_text_color` VARCHAR(20) DEFAULT '#ffffff' AFTER `theme_bg_color` ");
         }
 
         $query = $this->db->get_where('site_settings', ['id' => 1]);

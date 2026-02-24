@@ -6,7 +6,7 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 // Public Routes
-$route['produk'] = 'Product/index';
+$route['produk'] = 'Shop/index';
 $route['produk/(:num)'] = 'Product/detail/$1';
 $route['checkout'] = 'Order/checkout';
 $route['order/store'] = 'Order/store';
@@ -33,6 +33,8 @@ $route['admin/order/confirm/(:num)'] = 'Admin/confirm/$1';
 $route['admin/order/reject/(:num)'] = 'Admin/reject/$1';
 $route['admin/order/ship/(:num)'] = 'Admin/ship/$1';
 $route['admin/order/deliver/(:num)'] = 'Admin/deliver/$1';
+$route['admin/order/update-shipping/(:num)'] = 'Admin/update_shipping/$1';
+$route['admin/order/get-shipping-estimate/(:num)'] = 'Admin/get_shipping_estimate/$1';
 $route['admin/order/send-wa/(:num)'] = 'Admin/send_wa/$1';
 
 // Admin Products

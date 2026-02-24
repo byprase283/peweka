@@ -178,12 +178,12 @@ class Order extends CI_Controller
 
         // Logic for Pickup and COD ELD
         if ($payment_method === 'pickup') {
-            $courier = 'Self-Collect';
+            $courier = 'Ambil ke Toko';
             $service = 'Ambil di Toko';
             $shipping_cost = 0;
         } elseif ($payment_method === 'cod') {
-            $courier = 'ELD Logistics';
-            $service = 'COD (Dihitung Admin)';
+            $courier = 'Kurir Lokal';
+            $service = 'COD (Bayar di Tempat)';
             $shipping_cost = 0;
         }
 

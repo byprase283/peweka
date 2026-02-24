@@ -22,4 +22,9 @@ class Store_model extends CI_Model
     {
         return $this->db->update('stores', $data, ['id' => $id]);
     }
+
+    public function reset_defaults()
+    {
+        return $this->db->update('stores', ['is_default' => 0]);
+    }
 }

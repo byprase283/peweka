@@ -27,6 +27,14 @@ class Product_model extends CI_Model
         return $this->db->get()->result();
     }
 
+    public function count_all($active_only = TRUE)
+    {
+        if ($active_only) {
+            $this->db->where('is_active', 1);
+        }
+        return $this->db->count_all_results('products');
+    }
+
     public function get_by_id($id)
     {
         $this->db->select('products.*, categories.name as category_name, categories.id as category_id');
@@ -188,6 +196,11 @@ class Product_model extends CI_Model
     public function get_images($product_id)
     {
         return $this->db->get_where('product_images', ['product_id' => $product_id])->result();
+    }
+
+    public function get_image_by_id($id)
+    {
+        return $this->db->get_where('product_images', ['id' => $id])->row();
     }
 
     public function add_image($data)

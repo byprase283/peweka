@@ -5,7 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="<?= get_setting('site_about', 'Peweka - Culture & The Future. Brand clothing streetwear lokal dengan desain unik dan bahan premium.') ?>">
+        content="<?= get_setting('site_description', get_setting('site_about', 'Peweka - Culture & The Future. Brand clothing streetwear lokal dengan desain unik dan bahan premium.')) ?>">
+    <link rel="icon" type="image/png"
+        href="<?= base_url('assets/img/' . get_setting('site_favicon', 'favicon.png')) ?>">
+    <link rel="shortcut icon" type="image/png"
+        href="<?= base_url('assets/img/' . get_setting('site_favicon', 'favicon.png')) ?>">
     <title>
         <?= isset($title) ? $title : get_setting('site_name', 'Peweka') . ' - Culture & The Future' ?>
     </title>
@@ -17,28 +21,60 @@
     $theme_color = get_setting('theme_color', '#FFD700');
     $font_heading = get_setting('theme_font_heading', 'Outfit');
     $font_body = get_setting('theme_font_body', 'Inter');
+    $theme_preset = get_setting('theme_preset', 'peweka-gold');
+    $theme_bg = get_setting('theme_bg_color', '#0a0a0a');
+    $theme_text = get_setting('theme_text_color', '#ffffff');
 
-    // Simple PHP function to lighten/darken hex color
-    function adjustBrightness($hex, $steps)
-    {
-        $steps = max(-255, min(255, $steps));
-        $hex = str_replace('#', '', $hex);
-        if (strlen($hex) == 3) {
-            $hex = str_repeat(substr($hex, 0, 1), 2) . str_repeat(substr($hex, 1, 1), 2) . str_repeat(substr($hex, 2, 1), 2);
+    // Preset configurations
+    $bg_color = $theme_bg;
+    $text_color = $theme_text;
+
+    if ($theme_preset === 'peweka-gold') {
+        $theme_color = '#FFD700';
+        $bg_color = '#0a0a0a';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'midnight-ocean') {
+        $theme_color = '#3b82f6';
+        $bg_color = '#020617';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'forest-emerald') {
+        $theme_color = '#22c55e';
+        $bg_color = '#061a11';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'rose-velvet') {
+        $theme_color = '#ec4899';
+        $bg_color = '#1a0610';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'modern-light') {
+        $theme_color = '#111827';
+        $bg_color = '#f9fafb';
+        $text_color = '#111827';
+    }
+
+    if (!function_exists('adjustBrightness')) {
+        function adjustBrightness($hex, $steps)
+        {
+            $steps = max(-255, min(255, $steps));
+            $hex = str_replace('#', '', $hex);
+            if (strlen($hex) == 3) {
+                $hex = str_repeat(substr($hex, 0, 1), 2) . str_repeat(substr($hex, 1, 1), 2) . str_repeat(substr($hex, 2, 1), 2);
+            }
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+
+            $r = max(0, min(255, $r + $steps));
+            $g = max(0, min(255, $g + $steps));
+            $b = max(0, min(255, $b + $steps));
+
+            return sprintf("#%02x%02x%02x", $r, $g, $b);
         }
-        $r = hexdec(substr($hex, 0, 2));
-        $g = hexdec(substr($hex, 2, 2));
-        $b = hexdec(substr($hex, 4, 2));
-
-        $r = max(0, min(255, $r + $steps));
-        $g = max(0, min(255, $g + $steps));
-        $b = max(0, min(255, $b + $steps));
-
-        return sprintf("#%02x%02x%02x", $r, $g, $b);
     }
 
     $theme_light = adjustBrightness($theme_color, 40);
     $theme_dark = adjustBrightness($theme_color, -50);
+    $bg_light = ($theme_preset === 'modern-light') ? adjustBrightness($bg_color, -10) : adjustBrightness($bg_color, 20);
+    $bg_mid = ($theme_preset === 'modern-light') ? adjustBrightness($bg_color, -20) : adjustBrightness($bg_color, 40);
     ?>
 
     <?php if ($font_heading !== 'Outfit' || $font_body !== 'Inter'): ?>
@@ -57,6 +93,18 @@
             ;
             --yellow-dark:
                 <?= $theme_dark ?>
+            ;
+            --black:
+                <?= $bg_color ?>
+            ;
+            --black-light:
+                <?= $bg_light ?>
+            ;
+            --black-mid:
+                <?= $bg_mid ?>
+            ;
+            --white:
+                <?= $text_color ?>
             ;
             --font-primary:
                 <?= $font_heading ?>
@@ -96,9 +144,11 @@
             color: white;
             transition: color 0.3s ease;
         }
+
         .cart-link:hover {
             color: var(--yellow);
         }
+
         .cart-link .badge {
             position: absolute;
             top: -5px;
@@ -130,8 +180,9 @@
             </button>
             <ul class="navbar-menu" id="navMenu">
                 <li><a href="<?= base_url() ?>">Home</a></li>
-                <li><a href="<?= base_url('shop') ?>"
-                        class="<?= $this->uri->segment(1) == 'shop' ? 'active' : '' ?>">Belanja</a></li>
+                <li><a href="<?= base_url('produk') ?>"
+                        class="<?= ($this->uri->segment(1) == 'shop' || $this->uri->segment(1) == 'produk') ? 'active' : '' ?>">Belanja</a>
+                </li>
                 <li><a href="<?= base_url() ?>#products">Produk</a></li>
                 <li><a href="<?= base_url() ?>#about">Tentang</a></li>
                 <?php if ($ig = get_setting('instagram_url')): ?>

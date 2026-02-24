@@ -27,7 +27,7 @@ class Shop extends CI_Controller
         ];
 
         // 2. Pagination Config
-        $config['base_url'] = base_url('shop');
+        $config['base_url'] = base_url($this->uri->segment(1));
         $config['total_rows'] = $this->Product_model->count_shop_products($filters);
         $config['per_page'] = 9;
         $config['page_query_string'] = TRUE;

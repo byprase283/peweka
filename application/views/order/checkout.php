@@ -223,13 +223,25 @@
                     <div class="payment-section">
                         <h3><i class="fas fa-credit-card"></i> Metode Pembayaran</h3>
                         <div class="payment-methods">
+
                             <label class="payment-method-card active">
-                                <input type="radio" name="payment_method" value="transfer" checked
+                                <input type="radio" name="payment_method" value="midtrans" checked
+                                    onclick="togglePaymentMethod(this, 'midtrans')">
+                                <div class="method-icon"><i class="fas fa-credit-card"></i></div>
+                                <div class="method-info">
+                                    <span class="method-name">Bayar Instan</span>
+                                    <span class="method-desc">QRIS/VA/Gopay</span>
+                                </div>
+                                <div class="selected-check"><i class="fas fa-check-circle"></i></div>
+                            </label>
+
+                            <label class="payment-method-card">
+                                <input type="radio" name="payment_method" value="transfer"
                                     onclick="togglePaymentMethod(this, 'transfer')">
                                 <div class="method-icon"><i class="fas fa-university"></i></div>
                                 <div class="method-info">
-                                    <span class="method-name">Transfer</span>
-                                    <span class="method-desc">Cek Manual</span>
+                                    <span class="method-name">Transfer Manual</span>
+                                    <span class="method-desc">Admin Cek Manual</span>
                                 </div>
                                 <div class="selected-check"><i class="fas fa-check-circle"></i></div>
                             </label>
@@ -237,10 +249,10 @@
                             <label class="payment-method-card">
                                 <input type="radio" name="payment_method" value="cod"
                                     onclick="togglePaymentMethod(this, 'cod')">
-                                <div class="method-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                                <div class="method-icon"><i class="fas fa-truck-pickup"></i></div>
                                 <div class="method-info">
-                                    <span class="method-name">COD (ELD)</span>
-                                    <span class="method-desc">Cost By Admin</span>
+                                    <span class="method-name">COD (Kurir Lokal)</span>
+                                    <span class="method-desc">Bayar di Tempat</span>
                                 </div>
                                 <div class="selected-check"><i class="fas fa-check-circle"></i></div>
                             </label>
@@ -250,14 +262,14 @@
                                     onclick="togglePaymentMethod(this, 'pickup')">
                                 <div class="method-icon"><i class="fas fa-store-alt"></i></div>
                                 <div class="method-info">
-                                    <span class="method-name">Self-Collect</span>
-                                    <span class="method-desc">Ambil di Toko</span>
+                                    <span class="method-name">Ambil ke Toko</span>
+                                    <span class="method-desc">Ambil di Lokasi</span>
                                 </div>
                                 <div class="selected-check"><i class="fas fa-check-circle"></i></div>
                             </label>
 
-                            <label class="payment-method-card">
-                                <input type="radio" name="payment_method" value="komerce" checked
+                            <label class="payment-method-card" style="display: none;">
+                                <input type="radio" name="payment_method" value="komerce"
                                     onclick="togglePaymentMethod(this, 'komerce')">
                                 <div class="method-icon"><i class="fas fa-qrcode"></i></div>
                                 <div class="method-info">
@@ -267,20 +279,11 @@
                                 <div class="selected-check"><i class="fas fa-check-circle"></i></div>
                             </label>
 
-                            <label class="payment-method-card">
-                                <input type="radio" name="payment_method" value="midtrans"
-                                    onclick="togglePaymentMethod(this, 'midtrans')">
-                                <div class="method-icon"><i class="fas fa-credit-card"></i></div>
-                                <div class="method-info">
-                                    <span class="method-name">Midtrans</span>
-                                    <span class="method-desc">Kartu/Gopay/VA</span>
-                                </div>
-                                <div class="selected-check"><i class="fas fa-check-circle"></i></div>
-                            </label>
+
                         </div>
 
                         <!-- Bank Transfer Info -->
-                        <div id="transferInfo" class="payment-info-box" style="display: block;">
+                        <div id="transferInfo" class="payment-info-box" style="display: none;">
                             <h4><i class="fas fa-university"></i> Rekening Pembayaran</h4>
                             <div class="bank-info">
                                 <div class="bank-row">
@@ -303,20 +306,21 @@
                             </div>
                         </div>
 
-                        <!-- COD Eld Note -->
+                        <!-- COD Lokal Note -->
                         <div id="codNote" class="payment-info-box"
                             style="display: none; background: rgba(255,193,7,0.1); border-color: #ffc107;">
-                            <h4 style="color: #ffc107;"><i class="fas fa-truck-loading"></i> Info COD Eld Logistics</h4>
+                            <h4 style="color: #ffc107;"><i class="fas fa-truck-pickup"></i> Info COD Kurir Lokal</h4>
                             <p style="font-size: 0.85rem; margin-top: 10px;">
-                                Biaya ongkir akan dihitung manual oleh Admin. Bayar saat barang sampai melalui Eld
-                                Logistics.
+                                Pesanan akan dikirim menggunakan kurir lokal kami. Biaya ongkir akan dihitung manual
+                                oleh
+                                Admin. Silakan lakukan pembayaran tunai saat barang sampai.
                             </p>
                         </div>
 
                         <!-- Pickup Note -->
                         <div id="pickupNote" class="payment-info-box"
                             style="display: none; background: rgba(40,167,69,0.1); border-color: #28a745;">
-                            <h4 style="color: #28a745;"><i class="fas fa-store-alt"></i> Info Self-Collect</h4>
+                            <h4 style="color: #28a745;"><i class="fas fa-store-alt"></i> Info Ambil ke Toko</h4>
                             <p style="font-size: 0.85rem; margin-top: 10px;">
                                 Silakan ambil pesanan Anda langsung di lokasi toko yang dipilih setelah status menjadi
                                 "Siap Diambil".
@@ -324,7 +328,7 @@
                         </div>
 
                         <!-- Upload Proof Section -->
-                        <div id="proofUploadSection" class="form-group" style="margin-top: 20px;">
+                        <div id="proofUploadSection" class="form-group" style="margin-top: 20px; display: none;">
                             <label><i class="fas fa-camera"></i> Upload Bukti Transfer</label>
                             <div class="upload-area" onclick="document.getElementById('paymentFile').click()">
                                 <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
@@ -675,6 +679,13 @@
         courierSelect.setAttribute('required', 'required');
         serviceSelect.setAttribute('required', 'required');
 
+        // Reset if previously from COD (which had fixed service)
+        if (serviceSelect.innerHTML.includes('COD (Bayar di Tempat)')) {
+            courierSelect.value = '';
+            serviceSelect.innerHTML = '<option value="">Pilih Layanan</option>';
+            document.getElementById('shippingCost').innerText = 'Dihitung otomatis';
+        }
+
         if (method === 'transfer') {
             transferInfo.style.display = 'block';
             proofSection.style.display = 'block';
@@ -682,7 +693,7 @@
         } else if (method === 'cod') {
             codNote.style.display = 'block';
             courierSelect.value = '';
-            serviceSelect.innerHTML = '<option value="0" data-name="COD (Eld)">ELD Logistics (Dihitung Admin)</option>';
+            serviceSelect.innerHTML = '<option value="0" data-name="COD (Bayar di Tempat)">Kurir Lokal (Dihitung Admin)</option>';
             courierSelect.removeAttribute('required');
             serviceSelect.removeAttribute('required');
             courierSelect.setAttribute('disabled', 'disabled');

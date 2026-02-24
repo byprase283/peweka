@@ -37,12 +37,17 @@ class Order_model extends CI_Model
         return $order;
     }
 
-    public function get_all($status = NULL)
+    public function get_all($status = NULL, $limit = NULL, $offset = 0)
     {
         if ($status) {
             $this->db->where('status', $status);
         }
         $this->db->order_by('created_at', 'DESC');
+
+        if ($limit) {
+            $this->db->limit($limit, $offset);
+        }
+
         return $this->db->get('orders')->result();
     }
 
@@ -82,5 +87,11 @@ class Order_model extends CI_Model
         $this->db->where_in('status', ['confirmed', 'shipped', 'delivered']);
         $result = $this->db->get('orders')->row();
         return $result->total ?: 0;
+    }
+
+    public function update($id, $data)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update('orders', $data);
     }
 }

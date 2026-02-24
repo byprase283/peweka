@@ -11,7 +11,7 @@
                 <div class="form-group">
                     <label>Logo Situs</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <img src="<?= base_url('assets/img/' . $settings->site_logo) ?>" alt="Logo"
+                        <img src="<?= base_url('assets/img/' . ($settings->site_logo ?: 'logo.png')) ?>" alt="Logo"
                             style="height: 50px; background: #fff; padding: 5px; border-radius: 5px;">
                         <input type="file" name="site_logo" class="form-control">
                     </div>
@@ -19,9 +19,26 @@
                         (Maks 2MB)</small>
                 </div>
                 <div class="form-group">
-                    <label>Tentang Toko</label>
+                    <label>Favicon Situs</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <img src="<?= base_url('assets/img/' . ($settings->site_favicon ?: 'favicon.png')) ?>"
+                            alt="Favicon"
+                            style="height: 32px; width: 32px; background: #fff; padding: 2px; border-radius: 3px;">
+                        <input type="file" name="site_favicon" class="form-control">
+                    </div>
+                    <small class="text-muted">Ikon kecil di tab browser. Format: ICO, PNG, JPG (Maks 1MB). Sistem akan
+                        otomatis memperkecil ukuran.</small>
+                </div>
+                <div class="form-group">
+                    <label>Tentang Toko (Halaman Utama)</label>
                     <textarea name="site_about" class="form-control"
-                        rows="5"><?= htmlspecialchars($settings->site_about) ?></textarea>
+                        rows="4"><?= htmlspecialchars($settings->site_about) ?></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Deskripsi SEO Website</label>
+                    <textarea name="site_description" class="form-control" rows="3"
+                        placeholder="Deskripsi singkat untuk pencarian Google..."><?= htmlspecialchars($settings->site_description) ?></textarea>
+                    <small class="text-muted">Deskripsi ini akan muncul di mesin pencari (Meta Description).</small>
                 </div>
             </div>
 
@@ -66,39 +83,107 @@
             <div class="col-md-12">
                 <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Tampilan & Tema</h4>
             </div>
+
+            <!-- First Row: Preset & Accent -->
             <div class="col-md-4">
-                <div class="form-group">
-                    <label>Warna Utama (Primary)</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="color" name="theme_color" class="form-control"
-                            style="width: 60px; height: 45px; padding: 5px;"
-                            value="<?= $settings->theme_color ?: '#FFD700' ?>">
-                        <input type="text" class="form-control" value="<?= $settings->theme_color ?: '#FFD700' ?>"
-                            readonly>
-                    </div>
-                    <small class="text-muted">Akan mengubah aksen warna di seluruh situs (Tombol, Link, Header,
-                        dll)</small>
+                <div class="form-group mb-4">
+                    <label class="d-block mb-2">Preset Tema</label>
+                    <select name="theme_preset" id="themePreset"
+                        class="form-control bg-dark text-white border-secondary" onchange="toggleCustomColors()">
+                        <option value="peweka-gold" <?= $settings->theme_preset == 'peweka-gold' ? 'selected' : '' ?>>
+                            Peweka Gold (Default)</option>
+                        <option value="midnight-ocean" <?= $settings->theme_preset == 'midnight-ocean' ? 'selected' : '' ?>>Midnight Ocean</option>
+                        <option value="forest-emerald" <?= $settings->theme_preset == 'forest-emerald' ? 'selected' : '' ?>>Forest Emerald</option>
+                        <option value="rose-velvet" <?= $settings->theme_preset == 'rose-velvet' ? 'selected' : '' ?>>Rose
+                            Velvet</option>
+                        <option value="modern-light" <?= $settings->theme_preset == 'modern-light' ? 'selected' : '' ?>>
+                            Modern Light</option>
+                        <option value="custom" <?= $settings->theme_preset == 'custom' ? 'selected' : '' ?>>Custom Theme
+                        </option>
+                    </select>
                 </div>
             </div>
+
             <div class="col-md-4">
-                <div class="form-group">
-                    <label>Font Judul (Heading)</label>
-                    <select name="theme_font_heading" class="form-control">
+                <div class="form-group mb-4">
+                    <label class="d-block mb-2">Warna Utama (Accent)</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text bg-dark border-secondary p-1">
+                                <input type="color" name="theme_color"
+                                    style="width: 40px; height: 35px; border: none; background: none; cursor: pointer;"
+                                    value="<?= $settings->theme_color ?: '#FFD700' ?>"
+                                    oninput="this.parentElement.parentElement.nextElementSibling.value = this.value">
+                            </div>
+                        </div>
+                        <input type="text" class="form-control bg-dark text-white border-secondary border-left-0"
+                            value="<?= $settings->theme_color ?: '#FFD700' ?>" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-group mb-4">
+                    <label class="d-block mb-2">Font Judul (Heading)</label>
+                    <select name="theme_font_heading" class="form-control bg-dark text-white border-secondary">
                         <option value="Outfit" <?= $settings->theme_font_heading == 'Outfit' ? 'selected' : '' ?>>Outfit
                             (Default)</option>
                         <option value="Inter" <?= $settings->theme_font_heading == 'Inter' ? 'selected' : '' ?>>Inter
                         </option>
                         <option value="'Roboto', sans-serif" <?= $settings->theme_font_heading == "'Roboto', sans-serif" ? 'selected' : '' ?>>Roboto</option>
                         <option value="'Montserrat', sans-serif" <?= $settings->theme_font_heading == "'Montserrat', sans-serif" ? 'selected' : '' ?>>Montserrat</option>
-                        <option value="'Playfair Display', serif" <?= $settings->theme_font_heading == "'Playfair Display', serif" ? 'selected' : '' ?>>Playfair Display</option>
                         <option value="'Poppins', sans-serif" <?= $settings->theme_font_heading == "'Poppins', sans-serif" ? 'selected' : '' ?>>Poppins</option>
                     </select>
                 </div>
             </div>
+
+            <!-- Second Row: Custom Colors & Font Body -->
+            <div id="customColorFields" class="col-md-8"
+                style="<?= $settings->theme_preset == 'custom' ? 'display: block;' : 'display: none !important;' ?>">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="d-block mb-2">Warna Background</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text bg-dark border-secondary p-1">
+                                        <input type="color" name="theme_bg_color"
+                                            style="width: 40px; height: 35px; border: none; background: none; cursor: pointer;"
+                                            value="<?= $settings->theme_bg_color ?: '#0a0a0a' ?>"
+                                            oninput="this.parentElement.parentElement.nextElementSibling.value = this.value">
+                                    </div>
+                                </div>
+                                <input type="text"
+                                    class="form-control bg-dark text-white border-secondary border-left-0"
+                                    value="<?= $settings->theme_bg_color ?: '#0a0a0a' ?>" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-4">
+                            <label class="d-block mb-2">Warna Teks Utama</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text bg-dark border-secondary p-1">
+                                        <input type="color" name="theme_text_color"
+                                            style="width: 40px; height: 35px; border: none; background: none; cursor: pointer;"
+                                            value="<?= $settings->theme_text_color ?: '#ffffff' ?>"
+                                            oninput="this.parentElement.parentElement.nextElementSibling.value = this.value">
+                                    </div>
+                                </div>
+                                <input type="text"
+                                    class="form-control bg-dark text-white border-secondary border-left-0"
+                                    value="<?= $settings->theme_text_color ?: '#ffffff' ?>" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-md-4">
-                <div class="form-group">
-                    <label>Font Isi (Body)</label>
-                    <select name="theme_font_body" class="form-control">
+                <div class="form-group mb-4">
+                    <label class="d-block mb-2">Font Isi (Body)</label>
+                    <select name="theme_font_body" class="form-control bg-dark text-white border-secondary">
                         <option value="Inter" <?= $settings->theme_font_body == 'Inter' ? 'selected' : '' ?>>Inter
                             (Default)</option>
                         <option value="Outfit" <?= $settings->theme_font_body == 'Outfit' ? 'selected' : '' ?>>Outfit
@@ -109,35 +194,23 @@
                     </select>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-4 pt-3 border-top border-secondary">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Simpan Perubahan
-            </button>
-        </div>
+            <div class="mt-4 pt-3 border-top border-secondary">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Simpan Perubahan
+                </button>
+            </div>
     </form>
 </div>
 
-<style>
-    .row {
-        display: flex;
-        flex-wrap: wrap;
-        margin-right: -15px;
-        margin-left: -15px;
-    }
-
-    .col-md-6 {
-        flex: 0 0 50%;
-        max-width: 50%;
-        padding-right: 15px;
-        padding-left: 15px;
-    }
-
-    @media (max-width: 768px) {
-        .col-md-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
+<script>
+    function toggleCustomColors() {
+        var preset = document.getElementById('themePreset').value;
+        var customFields = document.getElementById('customColorFields');
+        if (preset === 'custom') {
+            customFields.style.setProperty('display', 'block', 'important');
+        } else {
+            customFields.style.setProperty('display', 'none', 'important');
         }
     }
-</style>
+</script>

@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png"
+        href="<?= base_url('assets/img/' . get_setting('site_favicon', 'favicon.png')) ?>">
     <title>
         <?= isset($title) ? $title : 'Admin - ' . get_setting('site_name', 'Peweka') ?>
     </title>
@@ -17,6 +19,35 @@
     $theme_color = get_setting('theme_color', '#FFD700');
     $font_heading = get_setting('theme_font_heading', 'Outfit');
     $font_body = get_setting('theme_font_body', 'Inter');
+    $theme_preset = get_setting('theme_preset', 'peweka-gold');
+    $theme_bg = get_setting('theme_bg_color', '#0a0a0a');
+    $theme_text = get_setting('theme_text_color', '#ffffff');
+
+    // Preset configurations
+    $bg_color = $theme_bg;
+    $text_color = $theme_text;
+
+    if ($theme_preset === 'peweka-gold') {
+        $theme_color = '#FFD700';
+        $bg_color = '#0a0a0a';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'midnight-ocean') {
+        $theme_color = '#3b82f6';
+        $bg_color = '#020617';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'forest-emerald') {
+        $theme_color = '#22c55e';
+        $bg_color = '#061a11';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'rose-velvet') {
+        $theme_color = '#ec4899';
+        $bg_color = '#1a0610';
+        $text_color = '#ffffff';
+    } else if ($theme_preset === 'modern-light') {
+        $theme_color = '#111827';
+        $bg_color = '#f9fafb';
+        $text_color = '#111827';
+    }
 
     if (!function_exists('adjustBrightness')) {
         function adjustBrightness($hex, $steps)
@@ -39,6 +70,9 @@
     }
 
     $theme_light = adjustBrightness($theme_color, 40);
+    $theme_dark = adjustBrightness($theme_color, -50);
+    $bg_light = ($theme_preset === 'modern-light') ? adjustBrightness($bg_color, -10) : adjustBrightness($bg_color, 20);
+    $bg_mid = ($theme_preset === 'modern-light') ? adjustBrightness($bg_color, -20) : adjustBrightness($bg_color, 40);
     ?>
 
     <?php if ($font_heading !== 'Outfit' || $font_body !== 'Inter'): ?>
@@ -55,11 +89,24 @@
             --yellow-light:
                 <?= $theme_light ?>
             ;
-            --black: #0a0a0a;
-            --black-light: #141414;
-            --black-mid: #1e1e1e;
-            --black-card: #181818;
-            --white: #ffffff;
+            --yellow-dark:
+                <?= $theme_dark ?>
+            ;
+            --black:
+                <?= $bg_color ?>
+            ;
+            --black-light:
+                <?= $bg_light ?>
+            ;
+            --black-mid:
+                <?= $bg_mid ?>
+            ;
+            --black-card:
+                <?= $bg_light ?>
+            ;
+            --white:
+                <?= $text_color ?>
+            ;
             --gray-100: #f5f5f5;
             --gray-300: #d4d4d4;
             --gray-400: #a3a3a3;
@@ -164,6 +211,26 @@
         .sidebar-menu {
             flex: 1;
             padding: 0 15px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+
+        .sidebar-menu::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb:hover {
+            background: var(--yellow);
         }
 
         .sidebar-menu a {
@@ -663,6 +730,7 @@
                 color: var(--white);
             }
 
+
             /* Responsive */
             @media (max-width: 768px) {
                 .sidebar {
@@ -794,6 +862,121 @@
 
         <?php $this->load->view('admin/' . $page); ?>
     </div>
+
+    <!-- Final Robust Styles for Admin Pagination -->
+    <style>
+        .pagination-container,
+        body .pagination-container,
+        .main-content .pagination-container,
+        #main-content .pagination-container {
+            margin-top: 50px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 20px !important;
+            padding: 20px 30px !important;
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 20px !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5) !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            clear: both !important;
+        }
+
+        .pagination-info,
+        body .pagination-info {
+            color: var(--gray-400) !important;
+            font-size: 0.85rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.5px !important;
+            text-transform: uppercase !important;
+            display: block !important;
+        }
+
+        .admin-pagination,
+        body .admin-pagination,
+        ul.admin-pagination {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 12px !important;
+        }
+
+        .admin-pagination li,
+        body .admin-pagination li {
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: inline-block !important;
+            /* Fallback for flex */
+        }
+
+        /* Extreme Bullet Removal */
+        .admin-pagination li::before,
+        .admin-pagination li::after,
+        ul.admin-pagination li::before,
+        ul.admin-pagination li::after {
+            display: none !important;
+            content: none !important;
+        }
+
+        .admin-pagination li a,
+        .admin-pagination li span,
+        body .admin-pagination li a,
+        body .admin-pagination li span {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 44px !important;
+            height: 44px !important;
+            padding: 0 18px !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            color: var(--gray-300) !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            font-family: 'Outfit', sans-serif !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .admin-pagination li a:hover {
+            background: rgba(255, 215, 0, 0.15) !important;
+            border-color: var(--yellow) !important;
+            color: var(--yellow) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2) !important;
+        }
+
+        .admin-pagination li.active span {
+            background: var(--yellow) !important;
+            color: var(--black) !important;
+            border-color: var(--yellow) !important;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4) !important;
+            transform: translateY(-3px) !important;
+        }
+
+        @media (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column !important;
+                gap: 20px !important;
+                padding: 25px !important;
+                text-align: center !important;
+            }
+
+            .admin-pagination {
+                justify-content: center !important;
+            }
+        }
+    </style>
 
 </body>
 
