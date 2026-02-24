@@ -134,19 +134,30 @@
             font-family: var(--font-primary);
         }
 
-        /* Cart Badge Styles */
+        /* Modern Desktop Cart Styling */
         .cart-link {
             position: relative;
-            display: flex;
+            display: none;
+            /* Managed by JS */
             align-items: center;
             justify-content: center;
-            padding: 8px;
-            color: white;
-            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            color: var(--yellow);
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .cart-link:hover {
-            color: var(--yellow);
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-2px);
+            color: var(--yellow-light);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.15);
+        }
+
+        .cart-link:active {
+            transform: scale(0.9);
         }
 
         .cart-link .badge {
@@ -155,12 +166,91 @@
             right: -5px;
             background: var(--yellow);
             color: var(--black);
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 2px 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            min-width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 50%;
-            min-width: 18px;
-            text-align: center;
+            border: 2px solid var(--black);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            animation: badgeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Modern Mobile Cart Styling */
+        .nav-actions {
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-cart-link {
+            position: relative;
+            color: var(--yellow);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .mobile-cart-link:active {
+            transform: scale(0.9);
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .mobile-cart-link .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--yellow);
+            color: var(--black);
+            font-size: 0.7rem;
+            font-weight: 800;
+            min-width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--black);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            animation: badgeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes badgeIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-actions {
+                display: flex;
+            }
+
+            .navbar-toggle {
+                margin-left: 5px;
+                width: 40px;
+                height: 40px;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+            }
         }
     </style>
 </head>
@@ -175,9 +265,17 @@
                     alt="<?= get_setting('site_name', 'Peweka') ?> Logo" class="brand-logo">
                 <?= strtolower(get_setting('site_name', 'peweka')) ?>
             </a>
-            <button class="navbar-toggle" onclick="toggleMenu()" aria-label="Menu">
-                <i class="fas fa-bars"></i>
-            </button>
+
+            <div class="nav-actions">
+                <a href="<?= base_url('cart') ?>" class="mobile-cart-link" id="mobileCartLink" style="display: none;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="badge" id="mobileCartBadge">0</span>
+                </a>
+                <button class="navbar-toggle" onclick="toggleMenu()" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
             <ul class="navbar-menu" id="navMenu">
                 <li><a href="<?= base_url() ?>">Home</a></li>
                 <li><a href="<?= base_url('produk') ?>"
@@ -190,7 +288,7 @@
                             @<?= basename($ig) ?></a></li>
                 <?php endif; ?>
                 <li class="nav-cart-item">
-                    <a href="<?= base_url('cart') ?>" class="cart-link" title="Keranjang Belanja">
+                    <a href="<?= base_url('cart') ?>" class="cart-link" id="desktopCartLink" title="Keranjang Belanja">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="badge" id="cartBadge" style="display: none;">0</span>
                     </a>

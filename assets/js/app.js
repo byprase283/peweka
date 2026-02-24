@@ -74,14 +74,31 @@ function addToCart(item) {
 
 function updateCartBadge() {
     var cart = getCart();
-    var badge = document.getElementById('cartBadge');
-    if (badge) {
-        var total = cart.reduce((sum, item) => sum + parseInt(item.quantity), 0);
+    var total = cart.reduce((sum, item) => sum + parseInt(item.quantity), 0);
+
+    // Desktop UI
+    var desktopBadge = document.getElementById('cartBadge');
+    var desktopCartLink = document.getElementById('desktopCartLink');
+    if (desktopBadge && desktopCartLink) {
         if (total > 0) {
-            badge.textContent = total;
-            badge.style.display = 'block';
+            desktopBadge.textContent = total;
+            desktopBadge.style.display = 'flex';
+            desktopCartLink.style.display = 'flex';
         } else {
-            badge.style.display = 'none';
+            desktopCartLink.style.display = 'none';
+        }
+    }
+
+    // Mobile UI
+    var mobileBadge = document.getElementById('mobileCartBadge');
+    var mobileCartLink = document.getElementById('mobileCartLink');
+    if (mobileBadge && mobileCartLink) {
+        if (total > 0) {
+            mobileBadge.textContent = total;
+            mobileBadge.style.display = 'flex';
+            mobileCartLink.style.display = 'flex';
+        } else {
+            mobileCartLink.style.display = 'none';
         }
     }
 }

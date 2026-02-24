@@ -119,17 +119,25 @@
 
 <!-- Success Modal -->
 <div id="successModal" class="modal-overlay" style="display:none;">
-    <div class="modal-content text-center">
-        <div class="modal-body py-4">
-            <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem; color: #28a745;"></i>
+    <div class="modal-content">
+        <div class="modal-header-custom">
+            <div class="success-icon-wrapper">
+                <div class="success-icon-bg"></div>
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+        <div class="modal-body-custom text-center">
             <h3>Berhasil!</h3>
             <p>Produk telah ditambahkan ke keranjang belanja Anda.</p>
-            <div class="d-flex gap-2 justify-content-center mt-4">
-                <button onclick="closeModal()" class="btn btn-light"
-                    style="border: 1px solid var(--gray-700); background: #333; color: white;">Lanjut Belanja</button>
-                <a href="<?= base_url('cart') ?>" class="btn btn-primary"
-                    style="background: var(--yellow); color: var(--black);">Lihat Keranjang</a>
-            </div>
+        </div>
+        <div class="modal-footer-custom">
+            <a href="<?= base_url('cart') ?>" class="btn-checkout-premium">
+                <span>Lihat Keranjang</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <button onclick="closeModal()" class="btn-continue-shopping">
+                Lanjut Belanja
+            </button>
         </div>
     </div>
 </div>
@@ -141,26 +149,142 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 9999;
-        backdrop-filter: blur(5px);
+        z-index: 10001;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        opacity: 1;
     }
 
     .modal-content {
-        background: #1a1a1a;
-        padding: 2.5rem;
-        border-radius: 20px;
-        max-width: 450px;
+        background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
+        padding: 40px 30px;
+        border-radius: 28px;
+        max-width: 400px;
         width: 90%;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.05);
+        transform: scale(0.9) translateY(20px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .text-success {
-        color: #28a745;
+    .modal-overlay.show .modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-header-custom {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 25px;
+    }
+
+    .success-icon-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: var(--black);
+        z-index: 1;
+    }
+
+    .success-icon-wrapper i {
+        position: relative;
+        z-index: 2;
+    }
+
+    .success-icon-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--yellow);
+        border-radius: 30px;
+        transform: rotate(45deg);
+        z-index: 1;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .modal-body-custom h3 {
+        font-family: var(--font-primary);
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        color: var(--white);
+        letter-spacing: -0.5px;
+    }
+
+    .modal-body-custom p {
+        color: var(--gray-400);
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 30px;
+    }
+
+    .modal-footer-custom {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .btn-checkout-premium {
+        background: var(--yellow);
+        color: var(--black);
+        padding: 16px 24px;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(255, 215, 0, 0.2);
+    }
+
+    .btn-checkout-premium:hover {
+        background: var(--yellow-light);
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px rgba(255, 215, 0, 0.3);
+    }
+
+    .btn-continue-shopping {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--gray-300);
+        padding: 14px 24px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-continue-shopping:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--white);
+    }
+
+    @media (max-width: 480px) {
+        .modal-content {
+            padding: 35px 20px;
+        }
+
+        .modal-body-custom h3 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 
@@ -278,10 +402,21 @@
         };
 
         addToCart(item);
-        document.getElementById('successModal').style.display = 'flex';
+        
+        // Show modal with animation
+        var modal = document.getElementById('successModal');
+        modal.style.display = 'flex';
+        // Force reflow
+        modal.offsetHeight;
+        modal.classList.add('show');
     }
 
     function closeModal() {
-        document.getElementById('successModal').style.display = 'none';
+        var modal = document.getElementById('successModal');
+        modal.classList.remove('show');
+        // Wait for animation to finish before hiding
+        setTimeout(function() {
+            modal.style.display = 'none';
+        }, 300);
     }
 </script>
