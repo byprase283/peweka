@@ -6,8 +6,10 @@ class Order_model extends CI_Model
 
     public function create($order_data, $items)
     {
-        // Generate unique order code
-        $order_data['order_code'] = 'PWK-' . strtoupper(substr(md5(uniqid()), 0, 8));
+        // Generate unique order code if not provided
+        if (!isset($order_data['order_code'])) {
+            $order_data['order_code'] = 'PWK-' . strtoupper(substr(md5(uniqid()), 0, 8));
+        }
         $order_data['created_at'] = date('Y-m-d H:i:s');
 
         $this->db->insert('orders', $order_data);

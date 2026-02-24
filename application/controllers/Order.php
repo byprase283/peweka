@@ -248,12 +248,16 @@ class Order extends CI_Controller
             'snap_token' => NULL
         ];
 
+        // Pre-generate order_code for consistent ID
+        $order_code = 'PWK-' . strtoupper(substr(md5(uniqid()), 0, 8));
+        $order_data['order_code'] = $order_code;
+
         // Payment Implementation
         if ($payment_method === 'midtrans') {
             // Original Midtrans Logic
             $params = [
                 'transaction_details' => [
-                    'order_id' => 'PWK-' . time() . '-' . rand(100, 999),
+                    'order_id' => $order_code,
                     'gross_amount' => (int) $order_data['total'],
                 ],
                 'customer_details' => [
@@ -296,7 +300,7 @@ class Order extends CI_Controller
             }
         }
 
-        $order_code = $this->Order_model->create($order_data, $items);
+        $this->Order_model->create($order_data, $items);
         $this->session->unset_userdata('checkout_cart');
 
         // Return order code for success page
