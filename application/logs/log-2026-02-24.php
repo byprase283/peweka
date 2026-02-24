@@ -47,3 +47,11 @@ ERROR - 2026-02-24 14:05:26 --> 404 Page Not Found: Admin/index
 ERROR - 2026-02-24 14:05:26 --> Severity: Warning --> Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\pewekav2\application\controllers\Admin.php:1) C:\xampp\htdocs\pewekav2\system\core\Common.php 571
 ERROR - 2026-02-24 14:05:26 --> 404 Page Not Found: Admin/index
 ERROR - 2026-02-24 14:05:26 --> Severity: Warning --> Cannot modify header information - headers already sent by (output started at C:\xampp\htdocs\pewekav2\application\controllers\Admin.php:1) C:\xampp\htdocs\pewekav2\system\core\Common.php 571
+ERROR - 2026-02-24 14:33:21 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:33:38 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:33:47 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:33:52 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:37:15 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:37:17 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:37:27 --> 404 Page Not Found: Assets/img
+ERROR - 2026-02-24 14:41:00 --> 404 Page Not Found: Assets/img

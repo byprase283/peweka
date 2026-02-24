@@ -316,12 +316,17 @@ class Admin extends CI_Controller
             $config_upload = [
                 'upload_path' => './assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 2048,
+                'max_size' => 10240,
                 'encrypt_name' => TRUE
             ];
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $image_name = $this->upload->data('file_name');
+            } else {
+                $upload_error = $this->upload->display_errors('', '');
+                $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error);
+                redirect('admin/product/create');
+                return;
             }
         }
 
@@ -368,7 +373,7 @@ class Admin extends CI_Controller
                     'upload_path' =>
                         './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                    'max_size' => 2048,
+                    'max_size' => 10240,
                     'encrypt_name' => TRUE
                 ];
 
@@ -380,6 +385,11 @@ class Admin extends CI_Controller
                         'product_id' => $product_id,
                         'image' => $gallery_data['file_name']
                     ]);
+                } else {
+                    $upload_error = $this->upload->display_errors('', '');
+                    $this->session->set_flashdata('error', 'Gagal upload galeri: ' . $upload_error);
+                    redirect('admin/product/edit/' . $product_id); // This works for store too if redirected carefully, but let's stick to simple
+                    return;
                 }
             }
         }
@@ -424,12 +434,17 @@ class Admin extends CI_Controller
             $config_upload = [
                 'upload_path' => './assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 2048,
+                'max_size' => 10240,
                 'encrypt_name' => TRUE
             ];
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $update_data['image'] = $this->upload->data('file_name');
+            } else {
+                $upload_error = $this->upload->display_errors('', '');
+                $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error);
+                redirect('admin/product/edit/' . $id);
+                return;
             }
         }
 
@@ -470,7 +485,7 @@ class Admin extends CI_Controller
                     'upload_path' =>
                         './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                    'max_size' => 2048,
+                    'max_size' => 10240,
                     'encrypt_name' => TRUE
                 ];
 
@@ -482,6 +497,11 @@ class Admin extends CI_Controller
                         'product_id' => $id,
                         'image' => $gallery_data['file_name']
                     ]);
+                } else {
+                    $upload_error = $this->upload->display_errors('', '');
+                    $this->session->set_flashdata('error', 'Gagal upload galeri: ' . $upload_error);
+                    redirect('admin/product/edit/' . $id);
+                    return;
                 }
             }
         }
