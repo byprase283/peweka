@@ -482,7 +482,7 @@
                                 <div id="previewContainer"></div>
                             </div>
                             <input type="file" name="payment_proof" id="paymentFile" accept="image/*"
-                                style="display:none" required onchange="previewUpload(this)">
+                                style="display:none" onchange="previewUpload(this)">
                         </div>
                     </div>
 
@@ -877,5 +877,13 @@
         // If it's transfer or online pay, we might want standard POST or stay on page for Snap
         // But for simplicity and ensuring localStorage clearing, we'll use a mix or just clear on success page.
         // Let's add a hook to the Success page to clear cart.
+    });
+
+    // Initial sync
+    document.addEventListener('DOMContentLoaded', function () {
+        const activeMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (activeMethod) {
+            togglePaymentMethod(activeMethod, activeMethod.value);
+        }
     });
 </script>
