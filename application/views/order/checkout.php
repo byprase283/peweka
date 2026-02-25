@@ -809,6 +809,12 @@
         var shippingSection = document.getElementById('shippingInfoSection');
         var courierSelect = document.getElementById('courierSelect');
         var serviceSelect = document.getElementById('serviceSelect');
+        var provinceSelect = document.getElementById('provinceSelect');
+        var citySelect = document.getElementById('citySelect');
+        var districtSelect = document.getElementById('districtSelect');
+        var subdistrictSelect = document.getElementById('subdistrictSelect');
+
+        var locationFields = [provinceSelect, citySelect, districtSelect, subdistrictSelect, courierSelect, serviceSelect];
 
         // Reset display
         transferInfo.style.display = 'none';
@@ -818,10 +824,12 @@
         proofInput.removeAttribute('required');
 
         if (shippingSection) shippingSection.style.display = 'block';
-        courierSelect.removeAttribute('disabled');
-        serviceSelect.removeAttribute('disabled');
-        courierSelect.setAttribute('required', 'required');
-        serviceSelect.setAttribute('required', 'required');
+        locationFields.forEach(field => {
+            if (field) {
+                field.removeAttribute('disabled');
+                field.setAttribute('required', 'required');
+            }
+        });
 
         // Reset if previously from COD (which had fixed service)
         if (serviceSelect.innerHTML.includes('COD (Bayar di Tempat)')) {
@@ -846,8 +854,9 @@
         } else if (method === 'pickup') {
             pickupNote.style.display = 'block';
             if (shippingSection) shippingSection.style.display = 'none';
-            courierSelect.removeAttribute('required');
-            serviceSelect.removeAttribute('required');
+            locationFields.forEach(field => {
+                if (field) field.removeAttribute('required');
+            });
             updateTotalWithShipping(0);
         } else if (method === 'midtrans') {
             // Nothing special, standard shipping

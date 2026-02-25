@@ -1,5 +1,9 @@
 <!-- Order Detail Professional UI -->
 <style>
+    #shipModal {
+        margin-top: 5px;
+    }
+
     .order-header-info {
         display: flex;
         justify-content: space-between;
@@ -335,7 +339,7 @@
                 </span>
             </div>
 
-            <?php if ($order->tracking_number): ?>
+            <?php if ($order->tracking_number && $order->payment_method !== 'pickup'): ?>
                 <div class="info-item" style="color: var(--yellow); font-weight: 700;">
                     <span class="info-label">No. Resi</span>
                     <span class="info-value">
@@ -346,6 +350,11 @@
                             <i class="fas fa-edit"></i> Edit
                         </button>
                     </span>
+                </div>
+            <?php elseif ($order->payment_method === 'pickup' && $order->status !== 'pending' && $order->status !== 'confirmed'): ?>
+                <div class="info-item" style="color: var(--green); font-weight: 700;">
+                    <span class="info-label">Metode</span>
+                    <span class="info-value">Ambil di Toko</span>
                 </div>
             <?php endif; ?>
 
@@ -384,15 +393,25 @@
                 <?php if ($order->status === 'confirmed'): ?>
                     <button type="button" class="btn btn-purple action-btn" data-bs-toggle="modal"
                         data-bs-target="#shipModal">
-                        <i class="fas fa-truck"></i> Masukkan Resi / Kirim
+                        <i class="fas fa-box"></i>
+                        <?= $order->payment_method === 'pickup' ? 'Tandai Siap Diambil' : 'Masukkan Resi / Kirim' ?>
                     </button>
                 <?php endif; ?>
 
                 <?php if ($order->status === 'shipped'): ?>
                     <a href="<?= base_url('admin/order/deliver/' . $order->id) ?>" class="btn btn-info action-btn"
-                        onclick="return confirm('Status: Tiba di Tujuan?')">
-                        <i class="fas fa-box-open"></i> Konfirmasi Diterima
+                        onclick="return confirm('<?= $order->payment_method === 'pickup' ? 'Tandai pesanan sudah diambil?' : 'Status: Tiba di Tujuan?' ?>')">
+                        <i class="fas fa-box-open"></i>
+                        <?= $order->payment_method === 'pickup' ? 'Konfirmasi Sudah Diambil' : 'Konfirmasi Diterima' ?>
                     </a>
+                <?php endif; ?>
+
+                <?php if ($order->status === 'delivered'): ?>
+                    <div
+                        style="text-align: center; padding: 15px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2); color: var(--green); font-weight: 700;">
+                        <i class="fas fa-check-double fa-2x mb-2 d-block"></i>
+                        PESANAN SELESAI
+                    </div>
                 <?php endif; ?>
 
                 <?php if (in_array($order->status, ['pending', 'confirmed'])): ?>
@@ -415,45 +434,70 @@
 </div>
 
 <!-- Modal Masukkan Resi -->
-<div class="modal fade" id="shipModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content"
-            style="background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
-            <form action="<?= base_url('admin/order/ship/' . $order->id) ?>" method="POST">
-                <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 20px;">
-                    <h5 class="modal-title" style="color: var(--yellow); font-weight: 700;">
-                        <i class="fas fa-truck me-2"></i>
-                        <?= $order->status === 'shipped' ? 'Update Nomor Resi' : 'Kirim Pesanan' ?>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="padding: 25px;">
-                    <div class="form-group mb-0">
-                        <label class="d-block mb-2"
-                            style="color: var(--gray-400); font-size: 0.85rem; font-weight: 600;">Nomor Resi
-                            Pengiriman</label>
-                        <input type="text" name="tracking_number" class="form-control" id="trackingInput"
-                            placeholder="Contoh: JNE123456789..." value="<?= $order->tracking_number ?>"
-                            style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 14px; color: #fff; width: 100%;">
-                        <small class="text-muted mt-3 d-block" style="font-size: 0.75rem; line-height: 1.4;">
-                            <i class="fas fa-info-circle me-1"></i>
-                            <?= $order->status === 'shipped' ? 'Ganti nomor resi jika ada perubahan.' : 'Status pesanan akan berubah menjadi <strong>"Sedang Dikirim"</strong>.' ?>
-                        </small>
+<?php if (in_array($order->status, ['confirmed', 'shipped']) && !($order->status === 'shipped' && $order->payment_method === 'pickup')): ?>
+    <div class="modal fade" id="shipModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content"
+                style="background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+                <form action="<?= base_url('admin/order/ship/' . $order->id) ?>" method="POST">
+                    <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 20px;">
+                        <h5 class="modal-title" style="color: var(--yellow); font-weight: 700;">
+                            <i class="fas <?= $order->payment_method === 'pickup' ? 'fa-store' : 'fa-truck' ?> me-2"></i>
+                            <?php
+                            if ($order->payment_method === 'pickup') {
+                                echo 'Konfirmasi Siap Diambil';
+                            } else {
+                                echo $order->status === 'shipped' ? 'Update Nomor Resi' : 'Kirim Pesanan';
+                            }
+                            ?>
+                        </h5>
+                        <!-- <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button> -->
                     </div>
-                </div>
-                <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.05); padding: 15px 20px;">
-                    <button type="button" class="btn btn-outline btn-sm" data-bs-dismiss="modal"
-                        style="border: none; color: var(--gray-500);">Batal</button>
-                    <button type="submit" class="btn btn-primary px-4 shadow-sm"
-                        style="border-radius: 8px; font-weight: 700;">
-                        <?= $order->status === 'shipped' ? 'Update Resi' : 'Konfirmasi Pengiriman' ?>
-                    </button>
-                </div>
-            </form>
+                    <div class="modal-body" style="padding: 25px;">
+                        <?php if ($order->payment_method === 'pickup'): ?>
+                            <div class="text-center py-3">
+                                <i class="fas fa-store fa-3x mb-3 text-yellow"></i>
+                                <p style="color: var(--gray-300);">Tandai pesanan ini sebagai <strong>"Siap Diambil"</strong>?
+                                </p>
+                                <p style="font-size: 0.85rem; color: var(--gray-500);">Pelanggan akan diarahkan untuk mengambil
+                                    pesanan di lokasi toko.</p>
+                                <input type="hidden" name="tracking_number" value="PICKUP">
+                            </div>
+                        <?php else: ?>
+                            <div class="form-group mb-0">
+                                <label class="d-block mb-2"
+                                    style="color: var(--gray-400); font-size: 0.85rem; font-weight: 600;">Nomor Resi
+                                    Pengiriman</label>
+                                <input type="text" name="tracking_number" class="form-control" id="trackingInput"
+                                    placeholder="Contoh: JNE123456789..." value="<?= $order->tracking_number ?>"
+                                    style="background: #2a2a2a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 14px; color: #fff; width: 100%;">
+                                <small class="text-muted mt-3 d-block" style="font-size: 0.75rem; line-height: 1.4;">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <?= $order->status === 'shipped' ? 'Ganti nomor resi jika ada perubahan.' : 'Status pesanan akan berubah menjadi <strong>"Sedang Dikirim"</strong>.' ?>
+                                </small>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.05); padding: 15px 20px;">
+                        <button type="button" class="btn btn-outline btn-sm" data-bs-dismiss="modal"
+                            style="border: none; color: var(--gray-500);">Batal</button>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm"
+                            style="border-radius: 8px; font-weight: 700;">
+                            <?php
+                            if ($order->payment_method === 'pickup') {
+                                echo 'Siap Diambil';
+                            } else {
+                                echo $order->status === 'shipped' ? 'Update Resi' : 'Konfirmasi Pengiriman';
+                            }
+                            ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+<?php endif; ?>
 
 <script>
     // Autofocus input when modal opens
