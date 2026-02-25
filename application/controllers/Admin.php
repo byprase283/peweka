@@ -333,13 +333,16 @@ class Admin extends CI_Controller
             $config_upload = [
                 'upload_path' => './assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 0,
+                'max_size' => 10240, // Increased to 10MB
                 'encrypt_name' => TRUE
             ];
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $image_name = $this->upload->data('file_name');
-                $this->_resize_image('./assets/img/products/' . $image_name);
+                $resize = $this->_resize_image('./assets/img/products/' . $image_name);
+                if ($resize !== TRUE) {
+                    $this->session->set_flashdata('error', 'Gambar utama diupload, tapi gagal dioptimasi: ' . $resize);
+                }
             } else {
                 $upload_error = $this->upload->display_errors('', '');
                 $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error);
@@ -392,7 +395,7 @@ class Admin extends CI_Controller
                     'upload_path' =>
                         './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                    'max_size' => 0,
+                    'max_size' => 10240, // Increased to 10MB
                     'encrypt_name' => TRUE
                 ];
 
@@ -400,7 +403,10 @@ class Admin extends CI_Controller
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
-                    $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
+                    $resize = $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
+                    if ($resize !== TRUE) {
+                        $this->session->set_flashdata('error', 'Beberapa gambar galeri gagal dioptimasi: ' . $resize);
+                    }
                     $this->Product_model->add_image([
                         'product_id' => $product_id,
                         'image' => $gallery_data['file_name']
@@ -455,13 +461,16 @@ class Admin extends CI_Controller
             $config_upload = [
                 'upload_path' => './assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 0,
+                'max_size' => 10240, // Increased to 10MB
                 'encrypt_name' => TRUE
             ];
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $update_data['image'] = $this->upload->data('file_name');
-                $this->_resize_image('./assets/img/products/' . $update_data['image']);
+                $resize = $this->_resize_image('./assets/img/products/' . $update_data['image']);
+                if ($resize !== TRUE) {
+                    $this->session->set_flashdata('error', 'Gambar utama diperbarui, tapi gagal dioptimasi: ' . $resize);
+                }
             } else {
                 $upload_error = $this->upload->display_errors('', '');
                 $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error);
@@ -507,7 +516,7 @@ class Admin extends CI_Controller
                     'upload_path' =>
                         './assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                    'max_size' => 0,
+                    'max_size' => 10240, // 10MB
                     'encrypt_name' => TRUE
                 ];
 
@@ -515,7 +524,10 @@ class Admin extends CI_Controller
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
-                    $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
+                    $resize = $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
+                    if ($resize !== TRUE) {
+                        $this->session->set_flashdata('error', 'Beberapa gambar galeri gagal dioptimasi: ' . $resize);
+                    }
                     $this->Product_model->add_image([
                         'product_id' => $id,
                         'image' => $gallery_data['file_name']
@@ -1030,12 +1042,17 @@ class Admin extends CI_Controller
      */
     private function _resize_image($path, $width = 800, $height = 800)
     {
+        // Boost memory and time for large images
+        ini_set('memory_limit', '512M');
+        set_time_limit(180);
+
         $config['image_library'] = 'gd2';
         $config['source_image'] = $path;
         $config['maintain_ratio'] = TRUE;
         $config['width'] = $width;
         $config['height'] = $height;
-        $config['quality'] = '75%'; // Compress quality to 75%
+        $config['quality'] = 60; // Compress quality (1-100)
+        $config['master_dim'] = 'auto';
 
         if (!isset($this->image_lib)) {
             $this->load->library('image_lib');
@@ -1058,16 +1075,54 @@ class Admin extends CI_Controller
         // Handle slashes and other potentially problematic characters
         $title = str_replace(['/', '\\'], '-', $title);
         $slug = url_title($title, 'dash', TRUE);
-        
+
         $this->db->where('slug', $slug);
         if ($id) {
             $this->db->where('id !=', $id);
         }
         $query = $this->db->get('products');
-        
+
         if ($query->num_rows() > 0) {
             $slug = $slug . '-' . time();
         }
         return $slug;
+    }
+
+    public function bulk_optimize()
+    {
+        $dir = './assets/img/products/';
+        $files = scandir($dir);
+        $count = 0;
+        $errors = [];
+
+        foreach ($files as $file) {
+            if ($file != "." && $file != ".." && $file != "default.svg" && is_file($dir . $file)) {
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+                if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp'])) {
+                    $size = filesize($dir . $file);
+                    // Only optimize if larger than 500KB
+                    if ($size > 500 * 1024) {
+                        $res = $this->_resize_image($dir . $file);
+                        if ($res === TRUE) {
+                            $count++;
+                        } else {
+                            $errors[] = "File {$file} gagal: " . $res;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($count > 0) {
+            $msg = "Berhasil mengoptimasi {$count} gambar.";
+            if ($errors) {
+                $msg .= " Namun ada beberapa error: " . implode(', ', $errors);
+            }
+            $this->session->set_flashdata('success', $msg);
+        } else {
+            $this->session->set_flashdata('info', 'Tidak ada gambar baru yang perlu dioptimasi (semua sudah di bawah 500KB).');
+        }
+
+        redirect('admin/settings');
     }
 }

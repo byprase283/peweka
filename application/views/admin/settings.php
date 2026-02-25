@@ -94,9 +94,12 @@
                             Peweka Gold (Default)</option>
                         <option value="midnight-ocean" <?= $settings->theme_preset == 'midnight-ocean' ? 'selected' : '' ?>>Midnight Ocean</option>
                         <option value="forest-emerald" <?= $settings->theme_preset == 'forest-emerald' ? 'selected' : '' ?>>Forest Emerald</option>
-                        <option value="rose-velvet" <?= $settings->theme_preset == 'rose-velvet' ? 'selected' : '' ?>>Rose Velvet</option>
-                        <option value="modern-light" <?= $settings->theme_preset == 'modern-light' ? 'selected' : '' ?>>Modern Light</option>
-                        <option value="custom" <?= $settings->theme_preset == 'custom' ? 'selected' : '' ?>>Custom Theme</option>
+                        <option value="rose-velvet" <?= $settings->theme_preset == 'rose-velvet' ? 'selected' : '' ?>>Rose
+                            Velvet</option>
+                        <option value="modern-light" <?= $settings->theme_preset == 'modern-light' ? 'selected' : '' ?>>
+                            Modern Light</option>
+                        <option value="custom" <?= $settings->theme_preset == 'custom' ? 'selected' : '' ?>>Custom Theme
+                        </option>
                     </select>
                 </div>
             </div>
@@ -123,8 +126,10 @@
                 <div class="form-group mb-4">
                     <label class="d-block mb-2">Font Judul (Heading)</label>
                     <select name="theme_font_heading" class="form-control bg-dark text-white border-secondary">
-                        <option value="Outfit" <?= $settings->theme_font_heading == 'Outfit' ? 'selected' : '' ?>>Outfit (Default)</option>
-                        <option value="Inter" <?= $settings->theme_font_heading == 'Inter' ? 'selected' : '' ?>>Inter</option>
+                        <option value="Outfit" <?= $settings->theme_font_heading == 'Outfit' ? 'selected' : '' ?>>Outfit
+                            (Default)</option>
+                        <option value="Inter" <?= $settings->theme_font_heading == 'Inter' ? 'selected' : '' ?>>Inter
+                        </option>
                         <option value="'Roboto', sans-serif" <?= $settings->theme_font_heading == "'Roboto', sans-serif" ? 'selected' : '' ?>>Roboto</option>
                         <option value="'Montserrat', sans-serif" <?= $settings->theme_font_heading == "'Montserrat', sans-serif" ? 'selected' : '' ?>>Montserrat</option>
                         <option value="'Poppins', sans-serif" <?= $settings->theme_font_heading == "'Poppins', sans-serif" ? 'selected' : '' ?>>Poppins</option>
@@ -179,8 +184,10 @@
                 <div class="form-group mb-4">
                     <label class="d-block mb-2">Font Isi (Body)</label>
                     <select name="theme_font_body" class="form-control bg-dark text-white border-secondary">
-                        <option value="Inter" <?= $settings->theme_font_body == 'Inter' ? 'selected' : '' ?>>Inter (Default)</option>
-                        <option value="Outfit" <?= $settings->theme_font_body == 'Outfit' ? 'selected' : '' ?>>Outfit</option>
+                        <option value="Inter" <?= $settings->theme_font_body == 'Inter' ? 'selected' : '' ?>>Inter
+                            (Default)</option>
+                        <option value="Outfit" <?= $settings->theme_font_body == 'Outfit' ? 'selected' : '' ?>>Outfit
+                        </option>
                         <option value="'Roboto', sans-serif" <?= $settings->theme_font_body == "'Roboto', sans-serif" ? 'selected' : '' ?>>Roboto</option>
                         <option value="'Open Sans', sans-serif" <?= $settings->theme_font_body == "'Open Sans', sans-serif" ? 'selected' : '' ?>>Open Sans</option>
                         <option value="'Lato', sans-serif" <?= $settings->theme_font_body == "'Lato', sans-serif" ? 'selected' : '' ?>>Lato</option>
@@ -192,23 +199,48 @@
         <!-- Pengaturan Diskon Global -->
         <div class="row mt-4 pt-4 border-top border-secondary">
             <div class="col-md-12">
-                <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Pengaturan Diskon Global</h4>
+                <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Pengaturan Diskon
+                    Global</h4>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Nama Diskon (Muncul di Halaman Produk)</label>
-                    <input type="text" name="global_discount_name" class="form-control" 
-                           value="<?= htmlspecialchars($settings->global_discount_name ?? '') ?>" 
-                           placeholder="Contoh: Ramadhan Sale, End of Year Sale">
+                    <input type="text" name="global_discount_name" class="form-control"
+                        value="<?= htmlspecialchars($settings->global_discount_name ?? '') ?>"
+                        placeholder="Contoh: Ramadhan Sale, End of Year Sale">
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Persentase Diskon (%)</label>
-                    <input type="number" name="global_discount_percent" class="form-control" 
-                           value="<?= (int)($settings->global_discount_percent ?? 0) ?>" 
-                           min="0" max="100">
+                    <input type="number" name="global_discount_percent" class="form-control"
+                        value="<?= (int) ($settings->global_discount_percent ?? 0) ?>" min="0" max="100">
                     <small class="text-muted">Set ke 0 untuk menonaktifkan diskon global.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Image Optimizer -->
+        <div class="row mt-4 pt-4 border-top border-secondary">
+            <div class="col-md-12">
+                <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Optimasi Media</h4>
+                <div class="alert alert-info bg-dark border-info text-info mb-4">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Tips:</strong> Jika Anda mengupload gambar yang sangat besar (di atas 1MB), sistem akan
+                    otomatis mengecilkannya. Namun, untuk gambar-gambar lama yang terlanjur besar atau jika Anda baru
+                    saja mengubah pengaturan kompresi, Anda bisa menggunakan tombol di bawah ini.
+                </div>
+                <div class="stat-card bg-dark border-secondary p-4 rounded-lg d-flex justify-content-between align-items-center"
+                    style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+                    <div>
+                        <h5 class="mb-1" style="color: var(--yellow);">Bulk Image Optimizer</h5>
+                        <p class="text-muted small mb-0">Scan folder produk dan kompres semua gambar yang ukurannya di
+                            atas 500KB secara massal.</p>
+                    </div>
+                    <a href="<?= base_url('admin/bulk_optimize') ?>" class="btn btn-outline"
+                        onclick="return confirm('Proses ini mungkin memakan waktu beberapa menit tergantung jumlah gambar. Lanjutkan?')">
+                        <i class="fas fa-compress-arrows-alt"></i> Optimasi Sekarang
+                    </a>
                 </div>
             </div>
         </div>
