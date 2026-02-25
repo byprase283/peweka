@@ -15,7 +15,7 @@ class Home extends CI_Controller
     {
         $category_slug = $this->input->get('category');
 
-        $data['title'] = get_setting('site_name', 'Peweka') . ' - Culture & The Future';
+        $data['title'] = get_setting('site_name', 'Peweka') . ' - Culture & The Futures';
         $data['categories'] = $this->Category_model->get_all();
         $data['active_category'] = $category_slug;
         $data['products'] = $this->Product_model->get_all(TRUE, $category_slug, 12);
