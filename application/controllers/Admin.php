@@ -350,6 +350,7 @@ class Admin extends CI_Controller
 
         $product_id = $this->Product_model->create([
             'name' => $this->input->post('name'),
+            'slug' => $this->_create_slug($this->input->post('name')),
             'description' => $this->input->post('description'),
             'price' => $this->input->post('price'),
             'image' => $image_name,
@@ -443,6 +444,7 @@ class Admin extends CI_Controller
 
         $update_data = [
             'name' => $this->input->post('name'),
+            'slug' => $this->_create_slug($this->input->post('name'), $id),
             'description' => $this->input->post('description'),
             'price' => $this->input->post('price'),
             'category_id' => $this->input->post('category_id') ?: NULL,
@@ -1047,5 +1049,25 @@ class Admin extends CI_Controller
 
         $this->image_lib->clear();
         return TRUE;
+    }
+
+
+    private function _create_slug($title, $id = null)
+    {
+        $this->load->helper('url');
+        // Handle slashes and other potentially problematic characters
+        $title = str_replace(['/', '\\'], '-', $title);
+        $slug = url_title($title, 'dash', TRUE);
+        
+        $this->db->where('slug', $slug);
+        if ($id) {
+            $this->db->where('id !=', $id);
+        }
+        $query = $this->db->get('products');
+        
+        if ($query->num_rows() > 0) {
+            $slug = $slug . '-' . time();
+        }
+        return $slug;
     }
 }

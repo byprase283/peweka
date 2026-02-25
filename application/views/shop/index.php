@@ -135,7 +135,7 @@
             <?php else: ?>
                 <div class="products-grid">
                     <?php foreach ($products as $product): ?>
-                        <a href="<?= base_url('produk/' . $product->id) ?>" class="product-card">
+                        <a href="<?= base_url('produk/' . $product->slug) ?>" class="product-card">
                             <div class="card-image">
                                 <?php if ($product->created_at > date('Y-m-d H:i:s', strtotime('-7 days'))): ?>
                                     <span class="card-badge">New</span>

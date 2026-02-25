@@ -7,7 +7,7 @@ $route['translate_uri_dashes'] = FALSE;
 
 // Public Routes
 $route['produk'] = 'Shop/index';
-$route['produk/(:num)'] = 'Product/detail/$1';
+$route['produk/(:any)'] = 'Product/detail/$1';
 $route['checkout'] = 'Order/checkout';
 $route['order/store'] = 'Order/store';
 $route['order/success/(:any)'] = 'Order/success/$1';

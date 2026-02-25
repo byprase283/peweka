@@ -4,7 +4,8 @@
         <div class="section-header text-center">
             <h2>Koleksi Produk</h2>
             <p class="section-subtitle">Temukan gaya terbaikmu dengan koleksi terbaru dari
-                <?= get_setting('site_name', 'Peweka') ?>.</p>
+                <?= get_setting('site_name', 'Peweka') ?>.
+            </p>
         </div>
 
         <div class="product-grid">
@@ -20,14 +21,14 @@
                                 alt="<?= htmlspecialchars($p->name) ?>"
                                 onerror="this.src='<?= base_url('assets/img/products/default.svg') ?>'">
                             <div class="product-overlay">
-                                <a href="<?= base_url('produk/' . $p->id) ?>" class="btn-view">
+                                <a href="<?= base_url('produk/' . $p->slug) ?>" class="btn-view">
                                     <i class="fas fa-eye"></i> Lihat Detail
                                 </a>
                             </div>
                         </div>
                         <div class="product-details">
                             <h3 class="product-title">
-                                <a href="<?= base_url('produk/' . $p->id) ?>"><?= htmlspecialchars($p->name) ?></a>
+                                <a href="<?= base_url('produk/' . $p->slug) ?>"><?= htmlspecialchars($p->name) ?></a>
                             </h3>
                             <div class="product-price">Rp <?= number_format($p->price, 0, ',', '.') ?></div>
                         </div>

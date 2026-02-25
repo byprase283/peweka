@@ -19,15 +19,16 @@ class Product extends CI_Controller
         $this->load->view('layout/footer');
     }
 
-    public function detail($id)
+    public function detail($slug)
     {
-        $data['product'] = $this->Product_model->get_by_id($id);
+        $data['product'] = $this->Product_model->get_by_slug($slug);
         if (!$data['product']) {
             show_404();
         }
-        $data['variants'] = $this->Product_model->get_variants($id);
-        $data['images'] = $this->Product_model->get_images($id);
-        $data['sizes'] = $this->Product_model->get_available_sizes($id);
+        $product_id = $data['product']->id;
+        $data['variants'] = $this->Product_model->get_variants($product_id);
+        $data['images'] = $this->Product_model->get_images($product_id);
+        $data['sizes'] = $this->Product_model->get_available_sizes($product_id);
         $data['title'] = $data['product']->name . ' - ' . get_setting('site_name', 'Peweka');
 
         // Group variants by size then color

@@ -110,7 +110,7 @@
                     </div>
 
                     <!-- Add to Cart Button -->
-                    <button type="button" class="btn btn-primary btn-lg btn-block mt-3" id="addToCartBtn" disabled
+                    <button type="button" class="btn btn-primary btn-lg btn-block mt-3" id="addToCartBtn"
                         onclick="handleAddToCart()">
                         <i class="fas fa-shopping-cart"></i> Tambah ke Keranjang
                     </button>
@@ -381,6 +381,8 @@
         document.getElementById('qtyInput').max = variant.stock;
         document.getElementById('qtyInput').value = 1;
         document.getElementById('addToCartBtn').disabled = false;
+        // Visual feedback that the button is "ready"
+        document.getElementById('addToCartBtn').style.opacity = '1';
     }
 
     function changeQty(delta) {
@@ -402,7 +404,17 @@
     }
 
     function handleAddToCart() {
-        if (!selectedVariantObj) return;
+        if (!selectedSize) {
+            showNotice("Pilih ukuran terlebih dahulu", "error");
+            // Scroll to size options
+            document.getElementById('sizeOptions').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        if (!selectedVariantObj) {
+            showNotice("Pilih warna terlebih dahulu", "error");
+            return;
+        }
 
         var item = {
             product_id: document.querySelector('input[name="product_id"]').value,
@@ -433,4 +445,57 @@
             modal.style.display = 'none';
         }, 300);
     }
+
+    function showNotice(msg, type) {
+        // Simple toast notification
+        var toast = document.createElement('div');
+        toast.className = 'custom-toast ' + type;
+        toast.innerHTML = (type === 'error' ? '<i class="fas fa-exclamation-circle"></i> ' : '<i class="fas fa-check-circle"></i> ') + msg;
+        document.body.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Animate out
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 </script>
+
+<style>
+    .custom-toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: #333;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 50px;
+        z-index: 10002;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        white-space: nowrap;
+    }
+
+    .custom-toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+
+    .custom-toast.error {
+        background: #dc3545;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .custom-toast i {
+        font-size: 1.2rem;
+    }
+</style>

@@ -6,6 +6,10 @@
     .page-title {
         padding-top: 0px;
     }
+
+    .summary-item {
+        padding: 8px;
+    }
 </style>
 
 
@@ -277,95 +281,8 @@
                         </div>
                     </div>
 
-                    <div class="section-header-modern" style="margin-top: 40px;">
-                        <i class="fas fa-truck"></i>
-                        <h3>Informasi Pengiriman</h3>
-                    </div>
-
-                    <div id="shippingInfoSection">
-                        <div class="origin-highlight-box">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label><i class="fas fa-store"></i> Kirim Dari (Lokasi Toko)</label>
-                                <select name="origin_id" id="originSelect" class="form-control"
-                                    onchange="calculateShipping()">
-                                    <?php foreach ($stores as $s): ?>
-                                        <option value="<?= $s->id ?>" <?= $s->is_default ? 'selected' : '' ?>><?= $s->name ?>
-                                            -
-                                            <?= $s->address ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="shipping-grid-custom">
-                            <div class="form-group">
-                                <label><i class="fas fa-map-marked-alt"></i> Provinsi</label>
-                                <select name="province_id" id="provinceSelect" class="form-control" required
-                                    onchange="loadCities(this.value)">
-                                    <option value="">Pilih Provinsi</option>
-                                    <?php foreach ($provinces as $p): ?>
-                                        <option value="<?= $p['id'] ?>"><?= $p['name'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <input type="hidden" name="province" id="provinceName">
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-city"></i> Kota/Kabupaten</label>
-                                <select name="city_id" id="citySelect" class="form-control" required
-                                    onchange="loadDistricts(this.value)">
-                                    <option value="">Pilih Kota</option>
-                                </select>
-                                <input type="hidden" name="city" id="cityName">
-                            </div>
-
-                            <div class="form-group">
-                                <label><i class="fas fa-map-pins"></i> Kecamatan</label>
-                                <select name="district_id" id="districtSelect" class="form-control" required
-                                    onchange="loadSubdistricts(this.value)">
-                                    <option value="">Pilih Kecamatan</option>
-                                </select>
-                                <input type="hidden" name="district" id="districtName">
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-home"></i> Desa/Kelurahan</label>
-                                <select name="subdistrict_id" id="subdistrictSelect" class="form-control" required
-                                    onchange="updateSubdistrictName(this)">
-                                    <option value="">Pilih Desa</option>
-                                </select>
-                                <input type="hidden" name="subdistrict" id="subdistrictName">
-                            </div>
-
-                            <div class="form-group">
-                                <label><i class="fas fa-truck-loading"></i> Kurir</label>
-                                <select name="courier" id="courierSelect" class="form-control" required
-                                    onchange="calculateShipping()">
-                                    <option value="">Pilih Kurir</option>
-                                    <option value="jne">JNE</option>
-                                    <option value="pos">POS Indonesia</option>
-                                    <option value="tiki">TIKI</option>
-                                    <option value="sicepat">SiCepat</option>
-                                    <option value="jnt">J&T</option>
-                                    <option value="anteraja">Anteraja</option>
-                                    <option value="lion">Lion Parcel</option>
-                                    <option value="ninja">Ninja Xpress</option>
-                                    <option value="wahana">Wahana</option>
-                                    <option value="idexpress">ID Express</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-concierge-bell"></i> Layanan</label>
-                                <select name="service" id="serviceSelect" class="form-control" required
-                                    onchange="updateTotalWithShipping()">
-                                    <option value="">Pilih Layanan</option>
-                                </select>
-                                <input type="hidden" name="service_name" id="serviceName">
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Payment Info -->
-                    <div class="payment-section">
+                    <div class="payment-section" style="margin-top: 40px;">
                         <h3><i class="fas fa-credit-card"></i> Metode Pembayaran</h3>
                         <div class="payment-methods">
 
@@ -486,6 +403,93 @@
                         </div>
                     </div>
 
+                    <div class="section-header-modern" style="margin-top: 40px;">
+                        <i class="fas fa-truck"></i>
+                        <h3>Informasi Pengiriman</h3>
+                    </div>
+
+                    <div id="shippingInfoSection">
+                        <div class="origin-highlight-box">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label><i class="fas fa-store"></i> Kirim Dari (Lokasi Toko)</label>
+                                <select name="origin_id" id="originSelect" class="form-control"
+                                    onchange="calculateShipping()">
+                                    <?php foreach ($stores as $s): ?>
+                                        <option value="<?= $s->id ?>" <?= $s->is_default ? 'selected' : '' ?>><?= $s->name ?>
+                                            -
+                                            <?= $s->address ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="shipping-grid-custom">
+                            <div class="form-group">
+                                <label><i class="fas fa-map-marked-alt"></i> Provinsi</label>
+                                <select name="province_id" id="provinceSelect" class="form-control" required
+                                    onchange="loadCities(this.value)">
+                                    <option value="">Pilih Provinsi</option>
+                                    <?php foreach ($provinces as $p): ?>
+                                        <option value="<?= $p['id'] ?>"><?= $p['name'] ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="hidden" name="province" id="provinceName">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-city"></i> Kota/Kabupaten</label>
+                                <select name="city_id" id="citySelect" class="form-control" required
+                                    onchange="loadDistricts(this.value)">
+                                    <option value="">Pilih Kota</option>
+                                </select>
+                                <input type="hidden" name="city" id="cityName">
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-map-pins"></i> Kecamatan</label>
+                                <select name="district_id" id="districtSelect" class="form-control" required
+                                    onchange="loadSubdistricts(this.value)">
+                                    <option value="">Pilih Kecamatan</option>
+                                </select>
+                                <input type="hidden" name="district" id="districtName">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-home"></i> Desa/Kelurahan</label>
+                                <select name="subdistrict_id" id="subdistrictSelect" class="form-control" required
+                                    onchange="updateSubdistrictName(this)">
+                                    <option value="">Pilih Desa</option>
+                                </select>
+                                <input type="hidden" name="subdistrict" id="subdistrictName">
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fas fa-truck-loading"></i> Kurir</label>
+                                <select name="courier" id="courierSelect" class="form-control" required
+                                    onchange="calculateShipping()">
+                                    <option value="">Pilih Kurir</option>
+                                    <option value="jne">JNE</option>
+                                    <option value="pos">POS Indonesia</option>
+                                    <option value="tiki">TIKI</option>
+                                    <option value="sicepat">SiCepat</option>
+                                    <option value="jnt">J&T</option>
+                                    <option value="anteraja">Anteraja</option>
+                                    <option value="lion">Lion Parcel</option>
+                                    <option value="ninja">Ninja Xpress</option>
+                                    <option value="wahana">Wahana</option>
+                                    <option value="idexpress">ID Express</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-concierge-bell"></i> Layanan</label>
+                                <select name="service" id="serviceSelect" class="form-control" required
+                                    onchange="updateTotalWithShipping()">
+                                    <option value="">Pilih Layanan</option>
+                                </select>
+                                <input type="hidden" name="service_name" id="serviceName">
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitOrder"
                         style="margin-top: 30px;">
                         <i class="fas fa-paper-plane"></i> Kirim Pesanan
@@ -509,10 +513,10 @@
                                 <p style="font-size: 0.8rem; margin-bottom: 2px; color: var(--gray-400);">
                                     <?= $item->size ?> | <?= $item->color ?>
                                 </p>
-                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                     <span style="font-size: 0.85rem; color: var(--yellow);"><?= $item->quantity ?> x Rp.
                                         <?= number_format($item->product_price, 0, ',', '.') ?></span>
-                                    <span style="font-weight: 600; font-size: 0.9rem;">Rp.
+                                    <span style="font-weight: 600; font-size: 0.9rem; margin-left: auto;">Rp.
                                         <?= number_format($item->product_price * $item->quantity, 0, ',', '.') ?></span>
                                 </div>
                             </div>

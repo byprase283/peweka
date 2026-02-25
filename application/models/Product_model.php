@@ -71,6 +71,16 @@ class Product_model extends CI_Model
         return $this->_apply_global_discount($product);
     }
 
+    public function get_by_slug($slug)
+    {
+        $this->db->select('products.*, categories.name as category_name, categories.id as category_id');
+        $this->db->from('products');
+        $this->db->join('categories', 'categories.id = products.category_id', 'left');
+        $this->db->where('products.slug', $slug);
+        $product = $this->db->get()->row();
+        return $this->_apply_global_discount($product);
+    }
+
     public function get_variants($product_id)
     {
         return $this->db->get_where('product_variants', ['product_id' => $product_id])->result();
