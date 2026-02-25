@@ -140,6 +140,10 @@
                                 <?php if ($product->created_at > date('Y-m-d H:i:s', strtotime('-7 days'))): ?>
                                     <span class="card-badge">New</span>
                                 <?php endif; ?>
+                                <?php if ($product->discount_percent > 0): ?>
+                                    <span class="card-badge discount"
+                                        style="top: 40px; background: #dc3545;">-<?= $product->discount_percent ?>%</span>
+                                <?php endif; ?>
                                 <img src="<?= base_url('assets/img/products/' . $product->image) ?>"
                                     alt="<?= htmlspecialchars($product->name) ?>"
                                     onerror="this.src='<?= base_url('assets/img/products/default.svg') ?>'">
@@ -150,7 +154,15 @@
                                     <?= isset($product->category_name) ? $product->category_name : 'Uncategorized' ?>
                                 </small>
                                 <h3><?= htmlspecialchars($product->name) ?></h3>
-                                <div class="price">Rp <?= number_format($product->price, 0, ',', '.') ?></div>
+                                <div class="price-area">
+                                    <?php if ($product->discount_percent > 0): ?>
+                                        <span class="price-old">Rp
+                                            <?= number_format($product->original_price, 0, ',', '.') ?></span>
+                                        <span class="discount-text"><?= $product->discount_name ?>
+                                            -<?= $product->discount_percent ?>%</span>
+                                    <?php endif; ?>
+                                    <div class="price">Rp <?= number_format($product->price, 0, ',', '.') ?></div>
+                                </div>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -168,6 +180,29 @@
 
     <style>
         /* Additional Inline Styles for specific shop logic not in main CSS yet */
+        .price-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-old {
+            text-decoration: line-through;
+            color: var(--gray-500);
+            font-size: 0.85rem;
+        }
+
+        .discount-text {
+            color: #5bc0de;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .card-badge.discount {
+            background: #dc3545 !important;
+        }
+
         .category-buttons {
             display: flex;
             flex-wrap: wrap;

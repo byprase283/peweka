@@ -171,6 +171,15 @@
                     'delivered' => 'Pesanan Diterima',
                     'rejected' => 'Ditolak'
                 ];
+
+                // Override label for rejected payments
+                if ($order->status === 'rejected') {
+                    if (strpos(strtolower($order->notes), 'expired') !== false || strpos(strtolower($order->notes), 'habis') !== false) {
+                        $status_labels['rejected'] = 'Kadaluarsa';
+                    } else if (strpos(strtolower($order->notes), 'batal') !== false) {
+                        $status_labels['rejected'] = 'Dibatalkan';
+                    }
+                }
                 ?>
                 <span class="status-badge status-<?= $order->status ?>">
                     <?= $status_labels[$order->status] ?>
@@ -249,9 +258,9 @@
                             payButton.addEventListener('click', function () {
                                 window.snap.pay('<?= $snap_token ?>', {
                                     onSuccess: function (result) { location.reload(); },
-                                    onPending: function (result) { alert("Silakan selesaikan pembayaran sesuai instruksi."); },
-                                    onError: function (result) { alert("Pembayaran gagal!"); },
-                                    onClose: function () { alert('Anda belum menyelesaikan pembayaran.'); }
+                                    onPending: function (result) { location.reload(); },
+                                    onError: function (result) { location.reload(); },
+                                    onClose: function () { location.reload(); }
                                 });
                             });
                         </script>
@@ -261,7 +270,17 @@
                 <div class="alert alert-danger mt-2">
                     <i class="fas fa-times-circle"></i>
                     <div>
-                        <strong>Pesanan Ditolak</strong><br>
+                        <strong>
+                            <?php
+                            if (strpos(strtolower($order->notes), 'expired') !== false || strpos(strtolower($order->notes), 'habis') !== false) {
+                                echo 'Waktu Pembayaran Habis';
+                            } else if (strpos(strtolower($order->notes), 'batal') !== false) {
+                                echo 'Pesanan Dibatalkan';
+                            } else {
+                                echo 'Pesanan Ditolak';
+                            }
+                            ?>
+                        </strong><br>
                         <?= $order->notes ?: 'Pembayaran tidak dapat diverifikasi.' ?>
                     </div>
                 </div>

@@ -94,12 +94,9 @@
                             Peweka Gold (Default)</option>
                         <option value="midnight-ocean" <?= $settings->theme_preset == 'midnight-ocean' ? 'selected' : '' ?>>Midnight Ocean</option>
                         <option value="forest-emerald" <?= $settings->theme_preset == 'forest-emerald' ? 'selected' : '' ?>>Forest Emerald</option>
-                        <option value="rose-velvet" <?= $settings->theme_preset == 'rose-velvet' ? 'selected' : '' ?>>Rose
-                            Velvet</option>
-                        <option value="modern-light" <?= $settings->theme_preset == 'modern-light' ? 'selected' : '' ?>>
-                            Modern Light</option>
-                        <option value="custom" <?= $settings->theme_preset == 'custom' ? 'selected' : '' ?>>Custom Theme
-                        </option>
+                        <option value="rose-velvet" <?= $settings->theme_preset == 'rose-velvet' ? 'selected' : '' ?>>Rose Velvet</option>
+                        <option value="modern-light" <?= $settings->theme_preset == 'modern-light' ? 'selected' : '' ?>>Modern Light</option>
+                        <option value="custom" <?= $settings->theme_preset == 'custom' ? 'selected' : '' ?>>Custom Theme</option>
                     </select>
                 </div>
             </div>
@@ -126,10 +123,8 @@
                 <div class="form-group mb-4">
                     <label class="d-block mb-2">Font Judul (Heading)</label>
                     <select name="theme_font_heading" class="form-control bg-dark text-white border-secondary">
-                        <option value="Outfit" <?= $settings->theme_font_heading == 'Outfit' ? 'selected' : '' ?>>Outfit
-                            (Default)</option>
-                        <option value="Inter" <?= $settings->theme_font_heading == 'Inter' ? 'selected' : '' ?>>Inter
-                        </option>
+                        <option value="Outfit" <?= $settings->theme_font_heading == 'Outfit' ? 'selected' : '' ?>>Outfit (Default)</option>
+                        <option value="Inter" <?= $settings->theme_font_heading == 'Inter' ? 'selected' : '' ?>>Inter</option>
                         <option value="'Roboto', sans-serif" <?= $settings->theme_font_heading == "'Roboto', sans-serif" ? 'selected' : '' ?>>Roboto</option>
                         <option value="'Montserrat', sans-serif" <?= $settings->theme_font_heading == "'Montserrat', sans-serif" ? 'selected' : '' ?>>Montserrat</option>
                         <option value="'Poppins', sans-serif" <?= $settings->theme_font_heading == "'Poppins', sans-serif" ? 'selected' : '' ?>>Poppins</option>
@@ -184,22 +179,45 @@
                 <div class="form-group mb-4">
                     <label class="d-block mb-2">Font Isi (Body)</label>
                     <select name="theme_font_body" class="form-control bg-dark text-white border-secondary">
-                        <option value="Inter" <?= $settings->theme_font_body == 'Inter' ? 'selected' : '' ?>>Inter
-                            (Default)</option>
-                        <option value="Outfit" <?= $settings->theme_font_body == 'Outfit' ? 'selected' : '' ?>>Outfit
-                        </option>
+                        <option value="Inter" <?= $settings->theme_font_body == 'Inter' ? 'selected' : '' ?>>Inter (Default)</option>
+                        <option value="Outfit" <?= $settings->theme_font_body == 'Outfit' ? 'selected' : '' ?>>Outfit</option>
                         <option value="'Roboto', sans-serif" <?= $settings->theme_font_body == "'Roboto', sans-serif" ? 'selected' : '' ?>>Roboto</option>
                         <option value="'Open Sans', sans-serif" <?= $settings->theme_font_body == "'Open Sans', sans-serif" ? 'selected' : '' ?>>Open Sans</option>
                         <option value="'Lato', sans-serif" <?= $settings->theme_font_body == "'Lato', sans-serif" ? 'selected' : '' ?>>Lato</option>
                     </select>
                 </div>
             </div>
+        </div>
 
-            <div class="mt-4 pt-3 border-top border-secondary">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Simpan Perubahan
-                </button>
+        <!-- Pengaturan Diskon Global -->
+        <div class="row mt-4 pt-4 border-top border-secondary">
+            <div class="col-md-12">
+                <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Pengaturan Diskon Global</h4>
             </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Nama Diskon (Muncul di Halaman Produk)</label>
+                    <input type="text" name="global_discount_name" class="form-control" 
+                           value="<?= htmlspecialchars($settings->global_discount_name ?? '') ?>" 
+                           placeholder="Contoh: Ramadhan Sale, End of Year Sale">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Persentase Diskon (%)</label>
+                    <input type="number" name="global_discount_percent" class="form-control" 
+                           value="<?= (int)($settings->global_discount_percent ?? 0) ?>" 
+                           min="0" max="100">
+                    <small class="text-muted">Set ke 0 untuk menonaktifkan diskon global.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-top border-secondary">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Simpan Perubahan
+            </button>
+        </div>
     </form>
 </div>
 

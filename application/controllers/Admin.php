@@ -122,7 +122,7 @@ class Admin extends CI_Controller
 
     public function confirm($id)
     {
-        $this->Order_model->update_status($id, 'confirmed');
+        $this->Order_model->update_status($id, 'confirmed', 'paid');
         $this->session->set_flashdata('success', 'Order berhasil dikonfirmasi.');
         redirect('admin/order/' . $id);
     }
@@ -130,7 +130,7 @@ class Admin extends CI_Controller
     public function reject($id)
     {
         $notes = $this->input->post('notes') ?: 'Pembayaran ditolak oleh admin.';
-        $this->Order_model->update_status($id, 'rejected', $notes);
+        $this->Order_model->update_status($id, 'rejected', 'failed', $notes);
         $this->session->set_flashdata('success', 'Order ditolak.');
         redirect('admin/order/' . $id);
     }
@@ -154,7 +154,7 @@ class Admin extends CI_Controller
 
     public function deliver($id)
     {
-        $this->Order_model->update_status($id, 'delivered');
+        $this->Order_model->update_status($id, 'delivered', 'paid');
         $this->session->set_flashdata('success', 'Order ditandai sebagai diterima.');
         redirect('admin/order/' . $id);
     }
@@ -844,7 +844,9 @@ class Admin extends CI_Controller
             'theme_font_body' => $this->input->post('theme_font_body'),
             'theme_preset' => $this->input->post('theme_preset'),
             'theme_bg_color' => $this->input->post('theme_bg_color'),
-            'theme_text_color' => $this->input->post('theme_text_color')
+            'theme_text_color' => $this->input->post('theme_text_color'),
+            'global_discount_percent' => (int) $this->input->post('global_discount_percent'),
+            'global_discount_name' => $this->input->post('global_discount_name')
         ];
 
         // Handle Logo Upload

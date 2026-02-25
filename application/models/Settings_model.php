@@ -33,6 +33,8 @@ class Settings_model extends CI_Model
                 `theme_preset` VARCHAR(50) DEFAULT 'peweka-gold',
                 `theme_bg_color` VARCHAR(20) DEFAULT '#0a0a0a',
                 `theme_text_color` VARCHAR(20) DEFAULT '#ffffff',
+                `global_discount_percent` INT DEFAULT 0,
+                `global_discount_name` VARCHAR(255) DEFAULT NULL,
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )");
             $this->db->insert('site_settings', ['id' => 1, 'site_name' => 'Peweka']);
@@ -62,6 +64,12 @@ class Settings_model extends CI_Model
         }
         if (!$this->db->field_exists('theme_text_color', 'site_settings')) {
             $this->db->query("ALTER TABLE `site_settings` ADD `theme_text_color` VARCHAR(20) DEFAULT '#ffffff' AFTER `theme_bg_color` ");
+        }
+        if (!$this->db->field_exists('global_discount_percent', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `global_discount_percent` INT DEFAULT 0 AFTER `theme_text_color` ");
+        }
+        if (!$this->db->field_exists('global_discount_name', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `global_discount_name` VARCHAR(255) DEFAULT NULL AFTER `global_discount_percent` ");
         }
 
         $query = $this->db->get_where('site_settings', ['id' => 1]);

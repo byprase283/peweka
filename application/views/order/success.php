@@ -88,14 +88,13 @@
                                     window.location.href = '<?= base_url('order/track/' . $order->order_code) ?>';
                                 },
                                 onPending: function (result) {
-                                    // User created VA/Pending: Stay on page as requested
-                                    alert("Silakan selesaikan pembayaran sesuai instruksi.");
+                                    window.location.href = '<?= base_url('order/track/' . $order->order_code) ?>';
                                 },
                                 onError: function (result) {
-                                    alert("Pembayaran gagal!");
+                                    window.location.href = '<?= base_url('order/track/' . $order->order_code) ?>';
                                 },
                                 onClose: function () {
-                                    alert('Anda belum menyelesaikan pembayaran. Silakan klik tombol "Bayar Sekarang" kembali.');
+                                    window.location.href = '<?= base_url('order/track/' . $order->order_code) ?>';
                                 }
                             });
                         });

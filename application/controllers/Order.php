@@ -190,7 +190,11 @@ class Order extends CI_Controller
         $subtotal = 0;
         $items = [];
         foreach ($cart as $item) {
-            $item_subtotal = $item->product_price * $item->quantity;
+            // Re-verify price from DB to ensure it's up to date with global discounts
+            $db_product = $this->Product_model->get_by_id($item->product_id);
+            $real_price = $db_product ? $db_product->price : $item->product_price;
+
+            $item_subtotal = $real_price * $item->quantity;
             $subtotal += $item_subtotal;
             $items[] = [
                 'product_id' => $item->product_id,
@@ -198,7 +202,7 @@ class Order extends CI_Controller
                 'product_name' => $item->product_name,
                 'size' => $item->size,
                 'color' => $item->color,
-                'price' => $item->product_price,
+                'price' => $real_price,
                 'quantity' => $item->quantity,
                 'subtotal' => $item_subtotal
             ];
@@ -254,19 +258,67 @@ class Order extends CI_Controller
 
         // Payment Implementation
         if ($payment_method === 'midtrans') {
-            // Original Midtrans Logic
+            // Build Item Details
+            $midtrans_items = [];
+            foreach ($items as $item) {
+                $midtrans_items[] = [
+                    'id' => $item['variant_id'],
+                    'price' => (int) $item['price'],
+                    'quantity' => (int) $item['quantity'],
+                    'name' => substr($item['product_name'], 0, 50)
+                ];
+            }
+
+            // Add Shipping as item
+            if ($shipping_cost > 0) {
+                $midtrans_items[] = [
+                    'id' => 'SHIPPING',
+                    'price' => (int) $shipping_cost,
+                    'quantity' => 1,
+                    'name' => 'Ongkos Kirim (' . $courier . ' ' . $service . ')'
+                ];
+            }
+
+            // Add Discount as negative item
+            if ($discount > 0) {
+                $midtrans_items[] = [
+                    'id' => 'VOUCHER',
+                    'price' => -(int) $discount,
+                    'quantity' => 1,
+                    'name' => 'Potongan Voucher (' . $voucher_code . ')'
+                ];
+            }
+
             $params = [
                 'transaction_details' => [
                     'order_id' => $order_code,
                     'gross_amount' => (int) $order_data['total'],
                 ],
+
+                'item_details' => $midtrans_items,
                 'customer_details' => [
                     'first_name' => $order_data['customer_name'],
+                    'email' => 'customer@peweka.id', // Placeholder as not in DB yet
                     'phone' => $order_data['customer_phone'],
+                    'billing_address' => [
+                        'first_name' => $order_data['customer_name'],
+                        'phone' => $order_data['customer_phone'],
+                        'address' => $order_data['customer_address'],
+                        'city' => $order_data['city'],
+                        'country_code' => 'IDN'
+                    ],
+                    'shipping_address' => [
+                        'first_name' => $order_data['customer_name'],
+                        'phone' => $order_data['customer_phone'],
+                        'address' => $order_data['customer_address'],
+                        'city' => $order_data['city'],
+                        'country_code' => 'IDN'
+                    ]
                 ],
                 'callbacks' => [
-                    'finish' => base_url('order/success/' . $order_code),
-                    'error' => base_url('order/success/' . $order_code)
+                    'finish' => base_url('order/track/' . $order_code),
+                    'error' => base_url('order/track/' . $order_code),
+                    'unfinish' => base_url('order/track/' . $order_code)
                 ]
             ];
             $snap = $this->midtrans->getSnapToken($params);
@@ -342,7 +394,12 @@ class Order extends CI_Controller
             if (isset($status_resp->transaction_status)) {
                 $status = $status_resp->transaction_status;
                 if ($status === 'settlement' || $status === 'capture') {
-                    $this->Order_model->update_status($order->id, 'confirmed');
+                    $this->Order_model->update_status($order->id, 'confirmed', 'paid');
+                    redirect('order/track/' . $order->order_code);
+                    return;
+                } else if ($status === 'expire' || $status === 'cancel' || $status === 'deny') {
+                    $notes = ($status === 'expire') ? 'Waktu pembayaran telah habis (Expired).' : (($status === 'cancel') ? 'Pembayaran dibatalkan.' : 'Pembayaran ditolak.');
+                    $this->Order_model->update_status($order->id, 'rejected', 'failed', $notes);
                     redirect('order/track/' . $order->order_code);
                     return;
                 }
@@ -372,7 +429,13 @@ class Order extends CI_Controller
             if (isset($status_resp->transaction_status)) {
                 $status = $status_resp->transaction_status;
                 if ($status === 'settlement' || $status === 'capture') {
-                    $this->Order_model->update_status($order->id, 'confirmed');
+                    $this->Order_model->update_status($order->id, 'confirmed', 'paid');
+                    // Refresh current order object for the view
+                    $order = $this->Order_model->get_by_code($code);
+                    $data['order'] = $order;
+                } else if ($status === 'expire' || $status === 'cancel' || $status === 'deny') {
+                    $notes = ($status === 'expire') ? 'Waktu pembayaran telah habis (Expired).' : (($status === 'cancel') ? 'Pembayaran dibatalkan.' : 'Pembayaran ditolak.');
+                    $this->Order_model->update_status($order->id, 'rejected', 'failed', $notes);
                     // Refresh current order object for the view
                     $order = $this->Order_model->get_by_code($code);
                     $data['order'] = $order;
@@ -443,12 +506,19 @@ class Order extends CI_Controller
             $new_status = 'confirmed';
         } else if ($transaction_status == 'cancel' || $transaction_status == 'deny' || $transaction_status == 'expire') {
             $new_status = 'rejected';
+            $failure_notes = [
+                'cancel' => 'Pembayaran dibatalkan.',
+                'deny' => 'Pembayaran ditolak oleh sistem payment gateway.',
+                'expire' => 'Waktu pembayaran telah habis (Expired).'
+            ];
+            $notes = isset($failure_notes[$transaction_status]) ? $failure_notes[$transaction_status] : 'Pembayaran gagal: ' . $transaction_status;
         } else if ($transaction_status == 'pending') {
             $new_status = 'pending';
         }
 
         if ($new_status) {
-            $this->Order_model->update_status($order->id, $new_status, 'Midtrans Status: ' . $transaction_status);
+            $payment_status = ($new_status === 'confirmed') ? 'paid' : ($new_status === 'rejected' ? 'failed' : 'pending');
+            $this->Order_model->update_status($order->id, $new_status, $payment_status, isset($notes) ? $notes : 'Midtrans Status: ' . $transaction_status);
             log_message('info', 'Midtrans Notification: Order ' . $order_code . ' status updated to ' . $new_status);
         }
 

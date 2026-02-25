@@ -3,6 +3,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Product_model extends CI_Model
 {
+    private function _apply_global_discount($product)
+    {
+        if (!$product)
+            return $product;
+
+        $discount_percent = (int) get_setting('global_discount_percent', 0);
+        $discount_name = get_setting('global_discount_name', '');
+
+        $product->original_price = $product->price;
+        $product->discount_percent = 0;
+        $product->discount_name = '';
+
+        if ($discount_percent > 0) {
+            $discount_amount = ($product->price * $discount_percent) / 100;
+            // Round to nearest hundred or thousand if needed, but simple subtraction for now
+            $product->price = $product->original_price - $discount_amount;
+            $product->discount_percent = $discount_percent;
+            $product->discount_name = $discount_name;
+        }
+
+        return $product;
+    }
 
     public function get_all($active_only = TRUE, $category_slug = NULL, $limit = NULL, $offset = 0)
     {
@@ -24,7 +46,11 @@ class Product_model extends CI_Model
             $this->db->limit($limit, $offset);
         }
 
-        return $this->db->get()->result();
+        $results = $this->db->get()->result();
+        foreach ($results as &$r) {
+            $r = $this->_apply_global_discount($r);
+        }
+        return $results;
     }
 
     public function count_all($active_only = TRUE)
@@ -41,7 +67,8 @@ class Product_model extends CI_Model
         $this->db->from('products');
         $this->db->join('categories', 'categories.id = products.category_id', 'left');
         $this->db->where('products.id', $id);
-        return $this->db->get()->row();
+        $product = $this->db->get()->row();
+        return $this->_apply_global_discount($product);
     }
 
     public function get_variants($product_id)
@@ -162,7 +189,11 @@ class Product_model extends CI_Model
         }
 
         $this->db->limit($limit, $offset);
-        return $this->db->get()->result();
+        $results = $this->db->get()->result();
+        foreach ($results as &$r) {
+            $r = $this->_apply_global_discount($r);
+        }
+        return $results;
     }
 
     public function count_shop_products($filters = [])

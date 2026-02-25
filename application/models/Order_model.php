@@ -60,12 +60,17 @@ class Order_model extends CI_Model
         return $order;
     }
 
-    public function update_status($id, $status, $notes = NULL)
+    public function update_status($id, $status, $payment_status = NULL, $notes = NULL)
     {
         $data = [
             'status' => $status,
             'updated_at' => date('Y-m-d H:i:s')
         ];
+
+        if ($payment_status !== NULL) {
+            $data['payment_status'] = $payment_status;
+        }
+
         if ($notes !== NULL) {
             $data['notes'] = $notes;
         }

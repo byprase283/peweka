@@ -29,8 +29,16 @@
                 <h1>
                     <?= htmlspecialchars($product->name) ?>
                 </h1>
-                <div class="price-tag">Rp
-                    <?= number_format($product->price, 0, ',', '.') ?>
+                <div class="price-container mb-3">
+                    <?php if ($product->discount_percent > 0): ?>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="original-price-tag">Rp
+                                <?= number_format($product->original_price, 0, ',', '.') ?></span>
+                            <span class="badge bg-danger"><?= $product->discount_name ?>
+                                -<?= $product->discount_percent ?>%</span>
+                        </div>
+                    <?php endif; ?>
+                    <div class="price-tag">Rp <?= number_format($product->price, 0, ',', '.') ?></div>
                 </div>
                 <p class="product-desc">
                     <?= htmlspecialchars($product->description) ?>
@@ -41,7 +49,7 @@
                     <input type="hidden" name="variant_id" id="selectedVariant" value="">
                     <input type="hidden" name="product_name" id="productName"
                         value="<?= htmlspecialchars($product->name) ?>">
-                    <input type="hidden" name="product_price" id="productPrice" value="<?= $product->price ?>">
+                    <input type="hidden" name="product_price" id="productPrice" value="<?= (int) $product->price ?>">
                     <input type="hidden" name="product_image" id="productImage" value="<?= $product->image ?>">
 
                     <!-- Size Selector -->
@@ -143,6 +151,12 @@
 </div>
 
 <style>
+    .original-price-tag {
+        text-decoration: line-through;
+        color: var(--gray-500);
+        font-size: 1.1rem;
+    }
+
     .modal-overlay {
         position: fixed;
         top: 0;
@@ -402,7 +416,7 @@
         };
 
         addToCart(item);
-        
+
         // Show modal with animation
         var modal = document.getElementById('successModal');
         modal.style.display = 'flex';
@@ -415,7 +429,7 @@
         var modal = document.getElementById('successModal');
         modal.classList.remove('show');
         // Wait for animation to finish before hiding
-        setTimeout(function() {
+        setTimeout(function () {
             modal.style.display = 'none';
         }, 300);
     }
