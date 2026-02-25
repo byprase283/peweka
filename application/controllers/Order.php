@@ -147,7 +147,7 @@ class Order extends CI_Controller
         $payment_proof = NULL;
         if ($payment_method === 'transfer') {
             $config_upload = [
-                'upload_path' => './uploads/payments/',
+                'upload_path' => FCPATH . 'uploads/payments/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
                 'max_size' => 2048,
                 'encrypt_name' => TRUE

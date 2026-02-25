@@ -331,7 +331,7 @@ class Admin extends CI_Controller
         $image_name = 'default.jpg';
         if ($_FILES['image']['name']) {
             $config_upload = [
-                'upload_path' => './assets/img/products/',
+                'upload_path' => FCPATH . 'assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
                 'max_size' => 10240, // Increased to 10MB
                 'encrypt_name' => TRUE
@@ -339,7 +339,7 @@ class Admin extends CI_Controller
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $image_name = $this->upload->data('file_name');
-                $resize = $this->_resize_image('./assets/img/products/' . $image_name);
+                $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $image_name);
                 if ($resize !== TRUE) {
                     $this->session->set_flashdata('error', 'Gambar utama diupload, tapi gagal dioptimasi: ' . $resize);
                 }
@@ -392,8 +392,7 @@ class Admin extends CI_Controller
                 $_FILES['gallery_file']['error'] = $_FILES['gallery']['error'][$i];
                 $_FILES['gallery_file']['size'] = $_FILES['gallery']['size'][$i];
                 $config_gallery = [
-                    'upload_path' =>
-                        './assets/img/products/',
+                    'upload_path' => FCPATH . 'assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
                     'max_size' => 10240, // Increased to 10MB
                     'encrypt_name' => TRUE
@@ -403,7 +402,7 @@ class Admin extends CI_Controller
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
-                    $resize = $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
+                    $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $gallery_data['file_name']);
                     if ($resize !== TRUE) {
                         $this->session->set_flashdata('error', 'Beberapa gambar galeri gagal dioptimasi: ' . $resize);
                     }
@@ -459,7 +458,7 @@ class Admin extends CI_Controller
 
         if ($_FILES['image']['name']) {
             $config_upload = [
-                'upload_path' => './assets/img/products/',
+                'upload_path' => FCPATH . 'assets/img/products/',
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
                 'max_size' => 10240, // Increased to 10MB
                 'encrypt_name' => TRUE
@@ -467,7 +466,7 @@ class Admin extends CI_Controller
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $update_data['image'] = $this->upload->data('file_name');
-                $resize = $this->_resize_image('./assets/img/products/' . $update_data['image']);
+                $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $update_data['image']);
                 if ($resize !== TRUE) {
                     $this->session->set_flashdata('error', 'Gambar utama diperbarui, tapi gagal dioptimasi: ' . $resize);
                 }
@@ -513,8 +512,7 @@ class Admin extends CI_Controller
                 $_FILES['gallery_file']['error'] = $_FILES['gallery']['error'][$i];
                 $_FILES['gallery_file']['size'] = $_FILES['gallery']['size'][$i];
                 $config_gallery = [
-                    'upload_path' =>
-                        './assets/img/products/',
+                    'upload_path' => FCPATH . 'assets/img/products/',
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
                     'max_size' => 10240, // 10MB
                     'encrypt_name' => TRUE
@@ -524,7 +522,7 @@ class Admin extends CI_Controller
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
-                    $resize = $this->_resize_image('./assets/img/products/' . $gallery_data['file_name']);
+                    $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $gallery_data['file_name']);
                     if ($resize !== TRUE) {
                         $this->session->set_flashdata('error', 'Beberapa gambar galeri gagal dioptimasi: ' . $resize);
                     }
@@ -1090,7 +1088,7 @@ class Admin extends CI_Controller
 
     public function bulk_optimize()
     {
-        $dir = './assets/img/products/';
+        $dir = FCPATH . 'assets/img/products/';
         $files = scandir($dir);
         $count = 0;
         $errors = [];
