@@ -110,7 +110,7 @@ class Rajaongkir
         return $this->_request('calculate/domestic-cost', 'POST', $params);
     }
 
-    public function get_waybill($resi, $courier)
+    public function get_waybill($resi, $courier, $last_phone_number = null)
     {
         if ($this->use_mock) {
             return [
@@ -177,6 +177,10 @@ class Rajaongkir
             'awb' => $resi,
             'courier' => $courier_code
         ];
+
+        if ($last_phone_number) {
+            $params['last_phone_number'] = $last_phone_number;
+        }
         return $this->_request('track/waybill', 'POST', $params);
     }
 

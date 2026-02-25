@@ -540,16 +540,29 @@ class Order extends CI_Controller
             return;
         }
 
-        $waybill = $this->rajaongkir->get_waybill($order->tracking_number, $order->courier);
+        // Ambil 5 digit terakhir nomor WA untuk validasi JNE (Komerce)
+        $last_phone = null;
+        if (!empty($order->customer_phone)) {
+            $clean_phone = preg_replace('/[^0-9]/', '', $order->customer_phone);
+            $last_phone = substr($clean_phone, -5);
+        }
 
-        log_message('error', 'Tracking Request - AWB: ' . $order->tracking_number . ' Courier: ' . $order->courier);
+        $waybill = $this->rajaongkir->get_waybill($order->tracking_number, $order->courier, $last_phone);
+
+        log_message('error', 'Tracking Request - AWB: ' . $order->tracking_number . ' Courier: ' . $order->courier . ' Phone: ' . $last_phone);
         log_message('error', 'RajaOngkir Response: ' . json_encode($waybill));
 
         header('Content-Type: application/json');
-        if (isset($waybill['data'])) {
+        if (isset($waybill['data']) && !empty($waybill['data'])) {
             echo json_encode(['success' => true, 'data' => $waybill['data']]);
         } else {
-            echo json_encode(['success' => false, 'message' => isset($waybill['meta']['message']) ? $waybill['meta']['message'] : 'Gagal mengambil data pelacakan']);
+            $msg = 'Gagal mengambil data pelacakan';
+            if (isset($waybill['meta']['message'])) {
+                $msg = $waybill['meta']['message'];
+            } else if (isset($waybill['raw_response']) && !empty($waybill['raw_response'])) {
+                $msg = 'API Error: ' . strip_tags(substr($waybill['raw_response'], 0, 100));
+            }
+            echo json_encode(['success' => false, 'message' => $msg]);
         }
     }
 }

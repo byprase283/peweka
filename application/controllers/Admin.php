@@ -1033,6 +1033,7 @@ class Admin extends CI_Controller
         $config['maintain_ratio'] = TRUE;
         $config['width'] = $width;
         $config['height'] = $height;
+        $config['quality'] = '75%'; // Compress quality to 75%
 
         if (!isset($this->image_lib)) {
             $this->load->library('image_lib');
