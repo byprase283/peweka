@@ -146,16 +146,30 @@ class Order extends CI_Controller
         // Handle file upload (only for transfer)
         $payment_proof = NULL;
         if ($payment_method === 'transfer') {
+            $raw_path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'payments' . DIRECTORY_SEPARATOR;
+            if (!is_dir($raw_path)) {
+                mkdir($raw_path, 0775, TRUE);
+            }
+            @chmod($raw_path, 0775);
+
             $config_upload = [
-                'upload_path' => FCPATH . 'uploads/payments/',
+                'upload_path' => $raw_path,
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
                 'max_size' => 2048,
                 'encrypt_name' => TRUE
             ];
+
+            if (!is_writable($config_upload['upload_path'])) {
+                $user = function_exists('posix_getpwuid') && function_exists('posix_geteuid') ? posix_getpwuid(posix_geteuid())['name'] : get_current_user();
+                $this->session->set_flashdata('error', 'Folder upload pembayaran tidak dapat ditulisi: ' . $config_upload['upload_path'] . '<br>User PHP: <b>' . $user . '</b><br><b>SOLUSI aaPanel:</b> Buka File Manager, Klik Kanan folder tersebut -> Permissions -> Set 775 dan pastikan Owner adalah <b>www</b>.');
+                redirect('checkout');
+                return;
+            }
+
             $this->upload->initialize($config_upload);
 
             if (!$this->upload->do_upload('payment_proof')) {
-                $this->session->set_flashdata('error', $this->upload->display_errors());
+                $this->session->set_flashdata('error', 'Gagal upload bukti: ' . $this->upload->display_errors('', ''));
                 redirect('checkout');
                 return;
             }

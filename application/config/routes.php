@@ -45,6 +45,7 @@ $route['admin/product/store'] = 'Admin/product_store';
 $route['admin/product/edit/(:num)'] = 'Admin/product_edit/$1';
 $route['admin/product/update/(:num)'] = 'Admin/product_update/$1';
 $route['admin/product/delete/(:num)'] = 'Admin/product_delete/$1';
+$route['admin/product/delete_image/(:num)/(:num)'] = 'Admin/product_delete_image/$1/$2';
 
 // Admin Vouchers
 $route['admin/vouchers'] = 'Admin/vouchers';

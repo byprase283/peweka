@@ -48,6 +48,11 @@ class Admin extends CI_Controller
         $data['rejected'] = $this->Order_model->count_by_status('rejected');
         $data['revenue'] = $this->Order_model->get_total_revenue();
         $data['recent_orders'] = $this->Order_model->get_all();
+
+        // New dashboard features
+        $data['revenue_stats'] = $this->Order_model->get_daily_revenue_stats(7);
+        $data['low_stock'] = $this->Product_model->get_low_stock_variants(5);
+
         $data['page'] = 'dashboard';
 
         $this->load->view('admin/layout', $data);
@@ -298,7 +303,7 @@ class Admin extends CI_Controller
         $this->pagination->initialize($config);
 
         $data['title'] = 'Produk - ' . get_setting('site_name', 'Peweka') . ' Admin';
-        $data['products'] = $this->Product_model->get_all(FALSE, NULL, $per_page, $offset);
+        $data['products'] = $this->Product_model->get_all(FALSE, NULL, $per_page, $offset, FALSE);
         $data['total_rows'] = $total_rows;
         $data['per_page'] = $per_page;
         $data['page_number'] = $page;
@@ -318,6 +323,11 @@ class Admin extends CI_Controller
 
     public function product_store()
     {
+        // Clean price from dots/Rp or any non-numeric before validation
+        if ($this->input->post('price')) {
+            $_POST['price'] = preg_replace('/[^0-9]/', '', $this->input->post('price'));
+        }
+
         $this->form_validation->set_rules('name', 'Nama Produk', 'required|trim');
         $this->form_validation->set_rules('price', 'Harga', 'required|integer');
         $this->form_validation->set_rules('description', 'Deskripsi', 'required');
@@ -330,22 +340,35 @@ class Admin extends CI_Controller
 
         $image_name = 'default.jpg';
         if ($_FILES['image']['name']) {
+            $raw_path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'products' . DIRECTORY_SEPARATOR;
+            if (!is_dir($raw_path)) {
+                mkdir($raw_path, 0775, TRUE);
+            }
+            chmod($raw_path, 0775);
+
             $config_upload = [
-                'upload_path' => FCPATH . 'assets/img/products/',
+                'upload_path' => $raw_path,
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 10240, // Increased to 10MB
+                'max_size' => 10240, // 10MB
                 'encrypt_name' => TRUE
             ];
+
+            if (!is_writable($config_upload['upload_path'])) {
+                $user = function_exists('posix_getpwuid') && function_exists('posix_geteuid') ? posix_getpwuid(posix_geteuid())['name'] : get_current_user();
+                $this->session->set_flashdata('error', 'Folder upload tidak dapat ditulisi: ' . $config_upload['upload_path'] . '<br>User PHP: <b>' . $user . '</b><br><b>SOLUSI aaPanel:</b> Buka File Manager, Klik Kanan folder tersebut -> Permissions -> Set 775 dan pastikan Owner adalah <b>www</b>.');
+                redirect('admin/product/create');
+                return;
+            }
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $image_name = $this->upload->data('file_name');
-                $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $image_name);
+                $resize = $this->_resize_image($raw_path . $image_name);
                 if ($resize !== TRUE) {
                     $this->session->set_flashdata('error', 'Gambar utama diupload, tapi gagal dioptimasi: ' . $resize);
                 }
             } else {
                 $upload_error = $this->upload->display_errors('', '');
-                $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error);
+                $this->session->set_flashdata('error', 'Gagal upload gambar utama: ' . $upload_error . ' (Path: ' . $config_upload['upload_path'] . ')');
                 redirect('admin/product/create');
                 return;
             }
@@ -391,18 +414,30 @@ class Admin extends CI_Controller
                 $_FILES['gallery_file']['tmp_name'] = $_FILES['gallery']['tmp_name'][$i];
                 $_FILES['gallery_file']['error'] = $_FILES['gallery']['error'][$i];
                 $_FILES['gallery_file']['size'] = $_FILES['gallery']['size'][$i];
+                $raw_path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'products' . DIRECTORY_SEPARATOR;
+                if (!is_dir($raw_path)) {
+                    mkdir($raw_path, 0775, TRUE);
+                }
+                chmod($raw_path, 0775);
+
                 $config_gallery = [
-                    'upload_path' => FCPATH . 'assets/img/products/',
+                    'upload_path' => $raw_path,
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                    'max_size' => 10240, // Increased to 10MB
+                    'max_size' => 10240, // 10MB
                     'encrypt_name' => TRUE
                 ];
+
+                if (!is_writable($config_gallery['upload_path'])) {
+                    $this->session->set_flashdata('error', 'Folder galeri tidak dapat ditulisi: ' . $config_gallery['upload_path'] . '. <br><b>SOLUSI aaPanel:</b> Set Permission 775 & Owner <b>www</b>.');
+                    redirect('admin/product/edit/' . $product_id);
+                    return;
+                }
 
                 $this->upload->initialize($config_gallery);
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
-                    $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $gallery_data['file_name']);
+                    $resize = $this->_resize_image($raw_path . $gallery_data['file_name']);
                     if ($resize !== TRUE) {
                         $this->session->set_flashdata('error', 'Beberapa gambar galeri gagal dioptimasi: ' . $resize);
                     }
@@ -412,7 +447,7 @@ class Admin extends CI_Controller
                     ]);
                 } else {
                     $upload_error = $this->upload->display_errors('', '');
-                    $this->session->set_flashdata('error', 'Gagal upload galeri: ' . $upload_error);
+                    $this->session->set_flashdata('error', 'Gagal upload galeri: ' . $upload_error . ' (Path: ' . $config_gallery['upload_path'] . ')');
                     redirect('admin/product/edit/' . $product_id); // This works for store too if redirected carefully, but let's stick to simple
                     return;
                 }
@@ -426,7 +461,7 @@ class Admin extends CI_Controller
     public function product_edit($id)
     {
         $data['title'] = 'Edit Produk - ' . get_setting('site_name', 'Peweka') . ' Admin';
-        $data['product'] = $this->Product_model->get_by_id($id);
+        $data['product'] = $this->Product_model->get_by_id($id, FALSE);
         $data['variants'] = $this->Product_model->get_variants($id);
         $data['gallery_images'] = $this->Product_model->get_images($id);
         $data['categories'] = $this->Category_model->get_all();
@@ -438,6 +473,11 @@ class Admin extends CI_Controller
 
     public function product_update($id)
     {
+        // Clean price from dots/Rp or any non-numeric before validation
+        if ($this->input->post('price')) {
+            $_POST['price'] = preg_replace('/[^0-9]/', '', $this->input->post('price'));
+        }
+
         $this->form_validation->set_rules('name', 'Nama Produk', 'required|trim');
         $this->form_validation->set_rules('price', 'Harga', 'required|integer');
 
@@ -457,16 +497,29 @@ class Admin extends CI_Controller
         ];
 
         if ($_FILES['image']['name']) {
+            $raw_path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'products' . DIRECTORY_SEPARATOR;
+            if (!is_dir($raw_path)) {
+                mkdir($raw_path, 0775, TRUE);
+            }
+            chmod($raw_path, 0775);
+
             $config_upload = [
-                'upload_path' => FCPATH . 'assets/img/products/',
+                'upload_path' => $raw_path,
                 'allowed_types' => 'jpg|jpeg|png|gif|webp',
-                'max_size' => 10240, // Increased to 10MB
+                'max_size' => 10240, // 10MB
                 'encrypt_name' => TRUE
             ];
+
+            if (!is_writable($config_upload['upload_path'])) {
+                $user = function_exists('posix_getpwuid') && function_exists('posix_geteuid') ? posix_getpwuid(posix_geteuid())['name'] : get_current_user();
+                $this->session->set_flashdata('error', 'Folder upload tidak dapat ditulisi: ' . $config_upload['upload_path'] . '<br>User PHP: <b>' . $user . '</b><br><b>SOLUSI aaPanel:</b> Buka File Manager -> Permissions -> Set 775 & Owner www.');
+                redirect('admin/product/edit/' . $id);
+                return;
+            }
             $this->upload->initialize($config_upload);
             if ($this->upload->do_upload('image')) {
                 $update_data['image'] = $this->upload->data('file_name');
-                $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $update_data['image']);
+                $resize = $this->_resize_image($raw_path . $update_data['image']);
                 if ($resize !== TRUE) {
                     $this->session->set_flashdata('error', 'Gambar utama diperbarui, tapi gagal dioptimasi: ' . $resize);
                 }
@@ -511,18 +564,30 @@ class Admin extends CI_Controller
                 $_FILES['gallery_file']['tmp_name'] = $_FILES['gallery']['tmp_name'][$i];
                 $_FILES['gallery_file']['error'] = $_FILES['gallery']['error'][$i];
                 $_FILES['gallery_file']['size'] = $_FILES['gallery']['size'][$i];
+                $raw_path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'products' . DIRECTORY_SEPARATOR;
+                if (!is_dir($raw_path)) {
+                    mkdir($raw_path, 0775, TRUE);
+                }
+                chmod($raw_path, 0775);
+
                 $config_gallery = [
-                    'upload_path' => FCPATH . 'assets/img/products/',
+                    'upload_path' => $raw_path,
                     'allowed_types' => 'jpg|jpeg|png|gif|webp',
                     'max_size' => 10240, // 10MB
                     'encrypt_name' => TRUE
                 ];
 
+                if (!is_writable($config_gallery['upload_path'])) {
+                    $this->session->set_flashdata('error', 'Folder galeri tidak dapat ditulisi: ' . $config_gallery['upload_path'] . '. <br><b>SOLUSI aaPanel:</b> Set Permission 775 & Owner <b>www</b>.');
+                    redirect('admin/product/edit/' . $id);
+                    return;
+                }
+
                 $this->upload->initialize($config_gallery);
 
                 if ($this->upload->do_upload('gallery_file')) {
                     $gallery_data = $this->upload->data();
-                    $resize = $this->_resize_image(FCPATH . 'assets/img/products/' . $gallery_data['file_name']);
+                    $resize = $this->_resize_image($raw_path . $gallery_data['file_name']);
                     if ($resize !== TRUE) {
                         $this->session->set_flashdata('error', 'Beberapa gambar galeri gagal dioptimasi: ' . $resize);
                     }
@@ -532,7 +597,7 @@ class Admin extends CI_Controller
                     ]);
                 } else {
                     $upload_error = $this->upload->display_errors('', '');
-                    $this->session->set_flashdata('error', 'Gagal upload galeri: ' . $upload_error);
+                    $this->session->set_flashdata('error', 'Gagal upload galeri: ' . $upload_error . ' (Path: ' . $config_gallery['upload_path'] . ')');
                     redirect('admin/product/edit/' . $id);
                     return;
                 }
@@ -547,9 +612,9 @@ class Admin extends CI_Controller
     {
         $image = $this->Product_model->get_image_by_id($image_id);
         if ($image) {
-            $path = './assets/img/products/' . $image->image;
+            $path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'products' . DIRECTORY_SEPARATOR . $image->image;
             if (file_exists($path)) {
-                unlink($path);
+                @unlink($path);
             }
             $this->Product_model->delete_image($image_id);
             $this->session->set_flashdata('success', 'Gambar berhasil dihapus.');
@@ -863,12 +928,21 @@ class Admin extends CI_Controller
 
         // Handle Logo Upload
         if (!empty($_FILES['site_logo']['name'])) {
-            $config['upload_path'] = './assets/img/';
-            $config['allowed_types'] = 'gif|jpg|png|jpeg|svg|webp';
-            $config['max_size'] = 2048;
-            $config['file_name'] = 'logo_' . time();
+            $raw_path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR;
+            if (!is_dir($raw_path)) {
+                mkdir($raw_path, 0775, TRUE);
+            }
+            @chmod($raw_path, 0775);
+
+            $config = [
+                'upload_path' => $raw_path,
+                'allowed_types' => 'gif|jpg|png|jpeg|svg|webp',
+                'max_size' => 2048,
+                'file_name' => 'logo_' . time()
+            ];
 
             $this->load->library('upload', $config);
+            $this->upload->initialize($config);
 
             if ($this->upload->do_upload('site_logo')) {
                 $upload_data = $this->upload->data();
@@ -876,8 +950,8 @@ class Admin extends CI_Controller
 
                 // Optional: Delete old logo
                 $old_settings = $this->Settings_model->get_settings();
-                if ($old_settings->site_logo != 'logo.png' && file_exists('./assets/img/' . $old_settings->site_logo)) {
-                    unlink('./assets/img/' . $old_settings->site_logo);
+                if ($old_settings->site_logo != 'logo.png' && file_exists($raw_path . $old_settings->site_logo)) {
+                    @unlink($raw_path . $old_settings->site_logo);
                 }
             } else {
                 $this->session->set_flashdata('error', 'Gagal upload logo: ' . $this->upload->display_errors('', ''));
@@ -887,13 +961,16 @@ class Admin extends CI_Controller
 
         // Handle Favicon Upload
         if (!empty($_FILES['site_favicon']['name'])) {
-            $config['upload_path'] = './assets/img/';
-            $config['allowed_types'] = 'gif|jpg|png|jpeg|webp|ico';
-            $config['max_size'] = 1024;
-            $config['file_name'] = 'favicon_' . time();
+            $raw_path = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR;
+            $config_fav = [
+                'upload_path' => $raw_path,
+                'allowed_types' => 'gif|jpg|png|jpeg|webp|ico',
+                'max_size' => 1024,
+                'file_name' => 'favicon_' . time()
+            ];
 
-            $this->load->library('upload', $config);
-            $this->upload->initialize($config);
+            $this->load->library('upload', $config_fav);
+            $this->upload->initialize($config_fav);
 
             if ($this->upload->do_upload('site_favicon')) {
                 $upload_data = $this->upload->data();
@@ -901,12 +978,13 @@ class Admin extends CI_Controller
 
                 // Resize Favicon to 32x32
                 $resize_config['image_library'] = 'gd2';
-                $resize_config['source_image'] = './assets/img/' . $favicon_name;
+                $resize_config['source_image'] = $raw_path . $favicon_name;
                 $resize_config['maintain_ratio'] = TRUE;
                 $resize_config['width'] = 32;
                 $resize_config['height'] = 32;
 
                 $this->load->library('image_lib', $resize_config);
+                $this->image_lib->initialize($resize_config);
                 $this->image_lib->resize();
 
                 $data['site_favicon'] = $favicon_name;
@@ -914,10 +992,10 @@ class Admin extends CI_Controller
                 // Optional: Delete old favicon
                 $old_settings = $this->Settings_model->get_settings();
                 if (
-                    $old_settings->site_favicon != 'favicon.png' && file_exists('./assets/img/' .
+                    $old_settings->site_favicon != 'favicon.png' && file_exists($raw_path .
                         $old_settings->site_favicon)
                 ) {
-                    unlink('./assets/img/' . $old_settings->site_favicon);
+                    @unlink($raw_path . $old_settings->site_favicon);
                 }
             } else {
                 $this->session->set_flashdata('error', 'Gagal upload favicon: ' . $this->upload->display_errors(
@@ -1088,7 +1166,7 @@ class Admin extends CI_Controller
 
     public function bulk_optimize()
     {
-        $dir = FCPATH . 'assets/img/products/';
+        $dir = rtrim(FCPATH, '/\\') . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'products' . DIRECTORY_SEPARATOR;
         $files = scandir($dir);
         $count = 0;
         $errors = [];

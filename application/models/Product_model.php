@@ -26,7 +26,7 @@ class Product_model extends CI_Model
         return $product;
     }
 
-    public function get_all($active_only = TRUE, $category_slug = NULL, $limit = NULL, $offset = 0)
+    public function get_all($active_only = TRUE, $category_slug = NULL, $limit = NULL, $offset = 0, $apply_discount = TRUE)
     {
         $this->db->select('products.*, categories.name as category_name, categories.slug as category_slug');
         $this->db->from('products');
@@ -48,7 +48,9 @@ class Product_model extends CI_Model
 
         $results = $this->db->get()->result();
         foreach ($results as &$r) {
-            $r = $this->_apply_global_discount($r);
+            if ($apply_discount) {
+                $r = $this->_apply_global_discount($r);
+            }
         }
         return $results;
     }
@@ -61,14 +63,19 @@ class Product_model extends CI_Model
         return $this->db->count_all_results('products');
     }
 
-    public function get_by_id($id)
+    public function get_by_id($id, $apply_discount = TRUE)
     {
         $this->db->select('products.*, categories.name as category_name, categories.id as category_id');
         $this->db->from('products');
         $this->db->join('categories', 'categories.id = products.category_id', 'left');
         $this->db->where('products.id', $id);
         $product = $this->db->get()->row();
-        return $this->_apply_global_discount($product);
+
+        if ($apply_discount) {
+            return $this->_apply_global_discount($product);
+        }
+
+        return $product;
     }
 
     public function get_by_slug($slug)
@@ -248,6 +255,17 @@ class Product_model extends CI_Model
     {
         $this->db->insert('product_images', $data);
         return $this->db->insert_id();
+    }
+
+    public function get_low_stock_variants($threshold = 5)
+    {
+        $this->db->select('product_variants.*, products.name as product_name, products.image');
+        $this->db->from('product_variants');
+        $this->db->join('products', 'products.id = product_variants.product_id');
+        $this->db->where('product_variants.stock <', $threshold);
+        $this->db->where('products.is_active', 1);
+        $this->db->order_by('product_variants.stock', 'ASC');
+        return $this->db->get()->result();
     }
 
     public function delete_image($id)

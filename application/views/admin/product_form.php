@@ -24,7 +24,7 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
             </div>
             <div class="form-group">
                 <label>Harga (Rp)</label>
-                <input type="number" name="price" class="form-control" value="<?= $is_edit ? $product->price : '' ?>"
+                <input type="text" name="price" class="form-control" value="<?= $is_edit ? (int) $product->price : '' ?>"
                     required>
             </div>
         </div>

@@ -94,6 +94,28 @@ class Order_model extends CI_Model
         return $result->total ?: 0;
     }
 
+    public function get_daily_revenue_stats($days = 7)
+    {
+        $this->db->select("DATE(created_at) as date, SUM(total) as revenue");
+        $this->db->where('created_at >=', date('Y-m-d', strtotime("-{$days} days")));
+        $this->db->where_in('status', ['confirmed', 'shipped', 'delivered']);
+        $this->db->group_by('DATE(created_at)');
+        $this->db->order_by('DATE(created_at)', 'ASC');
+        return $this->db->get('orders')->result();
+    }
+
+    public function get_monthly_revenue_stats($year = NULL)
+    {
+        if (!$year)
+            $year = date('Y');
+        $this->db->select("MONTH(created_at) as month, SUM(total) as revenue");
+        $this->db->where('YEAR(created_at)', $year);
+        $this->db->where_in('status', ['confirmed', 'shipped', 'delivered']);
+        $this->db->group_by('MONTH(created_at)');
+        $this->db->order_by('MONTH(created_at)', 'ASC');
+        return $this->db->get('orders')->result();
+    }
+
     public function update($id, $data)
     {
         $this->db->where('id', $id);
