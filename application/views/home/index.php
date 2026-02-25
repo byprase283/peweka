@@ -81,7 +81,7 @@
         <div class="products-grid">
             <?php if (!empty($products)): ?>
                 <?php foreach ($products as $product): ?>
-                    <a href="<?= base_url('produk/' . $product->id) ?>" class="product-card" id="product-<?= $product->id ?>">
+                    <a href="<?= base_url('produk/' . $product->slug) ?>" class="product-card" id="product-<?= $product->id ?>">
                         <div class="card-image">
                             <?php if ($product->created_at > date('Y-m-d H:i:s', strtotime('-7 days'))): ?>
                                 <span class="card-badge">New</span>
@@ -104,7 +104,8 @@
                             <div class="price-area">
                                 <?php if ($product->discount_percent > 0): ?>
                                     <span class="price-old">Rp <?= number_format($product->original_price, 0, ',', '.') ?></span>
-                                    <span class="discount-text"><?= $product->discount_name ?> -<?= $product->discount_percent ?>%</span>
+                                    <span class="discount-text"><?= $product->discount_name ?>
+                                        -<?= $product->discount_percent ?>%</span>
                                 <?php endif; ?>
                                 <div class="price">
                                     Rp <?= number_format($product->price, 0, ',', '.') ?>
