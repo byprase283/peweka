@@ -344,29 +344,6 @@
 
                         </div>
 
-                        <!-- Bank Transfer Info -->
-                        <div id="transferInfo" class="payment-info-box" style="display: none;">
-                            <h4><i class="fas fa-university"></i> Rekening Pembayaran</h4>
-                            <div class="bank-info">
-                                <div class="bank-row">
-                                    <span class="bank-label">Bank</span>
-                                    <span class="bank-value">BCA</span>
-                                </div>
-                                <div class="bank-row">
-                                    <span class="bank-label">No. Rekening</span>
-                                    <span class="bank-value">1234567890</span>
-                                </div>
-                                <div class="bank-row">
-                                    <span class="bank-label">Atas Nama</span>
-                                    <span class="bank-value"><?= get_setting('site_name', 'Peweka') ?> Official</span>
-                                </div>
-                                <div class="bank-row">
-                                    <span class="bank-label">Jumlah</span>
-                                    <span class="bank-value text-yellow" id="transferAmount">Rp.
-                                        <?= number_format($subtotal, 0, ',', '.') ?></span>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- COD Lokal Note -->
                         <div id="codNote" class="payment-info-box"
@@ -389,33 +366,21 @@
                             </p>
                         </div>
 
-                        <!-- Upload Proof Section -->
-                        <div id="proofUploadSection" class="form-group" style="margin-top: 20px; display: none;">
-                            <label><i class="fas fa-camera"></i> Upload Bukti Transfer</label>
-                            <div class="upload-area" onclick="document.getElementById('paymentFile').click()">
-                                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                                <p>Klik untuk upload bukti transfer</p>
-                                <div class="file-name" id="fileName"></div>
-                                <div id="previewContainer"></div>
-                            </div>
-                            <input type="file" name="payment_proof" id="paymentFile" accept="image/*"
-                                style="display:none" onchange="previewUpload(this)">
-                        </div>
                     </div>
 
-                    <div class="section-header-modern" style="margin-top: 40px;">
+                    <div class="section-header-modern" style="margin-top: 40px;" id="shippingSectionHeader">
                         <i class="fas fa-truck"></i>
                         <h3>Informasi Pengiriman</h3>
                     </div>
 
                     <div id="shippingInfoSection">
-                        <div class="origin-highlight-box">
+                        <div class="origin-highlight-box" id="storeLocationBox">
                             <div class="form-group" style="margin-bottom: 0;">
                                 <label><i class="fas fa-store"></i> Kirim Dari (Lokasi Toko)</label>
                                 <select name="origin_id" id="originSelect" class="form-control"
                                     onchange="calculateShipping()">
                                     <?php foreach ($stores as $s): ?>
-                                        <option value="<?= $s->id ?>" <?= $s->is_default ? 'selected' : '' ?>><?= $s->name ?>
+                                        <option value="<?= $s->id ?>" <?= $s->is_default ? 'selected data-default="true"' : '' ?>><?= $s->name ?>
                                             -
                                             <?= $s->address ?>
                                         </option>
@@ -424,7 +389,7 @@
                             </div>
                         </div>
 
-                        <div class="shipping-grid-custom">
+                        <div class="shipping-grid-custom" id="shippingAddressGrid">
                             <div class="form-group">
                                 <label><i class="fas fa-map-marked-alt"></i> Provinsi</label>
                                 <select name="province_id" id="provinceSelect" class="form-control" required
@@ -487,6 +452,43 @@
                                 </select>
                                 <input type="hidden" name="service_name" id="serviceName">
                             </div>
+                        </div>
+
+                        <!-- Bank Transfer Info (Relocated) -->
+                        <div id="transferInfo" class="payment-info-box" style="display: none; margin-top: 20px;">
+                            <h4><i class="fas fa-university"></i> Rekening Pembayaran</h4>
+                            <div class="bank-info">
+                                <div class="bank-row">
+                                    <span class="bank-label">Bank</span>
+                                    <span class="bank-value">BCA</span>
+                                </div>
+                                <div class="bank-row">
+                                    <span class="bank-label">No. Rekening</span>
+                                    <span class="bank-value">1234567890</span>
+                                </div>
+                                <div class="bank-row">
+                                    <span class="bank-label">Atas Nama</span>
+                                    <span class="bank-value"><?= get_setting('site_name', 'Peweka') ?> Official</span>
+                                </div>
+                                <div class="bank-row">
+                                    <span class="bank-label">Jumlah</span>
+                                    <span class="bank-value text-yellow" id="transferAmount">Rp.
+                                        <?= number_format($subtotal, 0, ',', '.') ?></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload Proof Section (Relocated) -->
+                        <div id="proofUploadSection" class="form-group" style="margin-top: 20px; display: none;">
+                            <label><i class="fas fa-camera"></i> Upload Bukti Transfer</label>
+                            <div class="upload-area" onclick="document.getElementById('paymentFile').click()">
+                                <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                                <p>Klik untuk upload bukti transfer</p>
+                                <div class="file-name" id="fileName"></div>
+                                <div id="previewContainer"></div>
+                            </div>
+                            <input type="file" name="payment_proof" id="paymentFile" accept="image/*"
+                                style="display:none" onchange="previewUpload(this)">
                         </div>
                     </div>
 
@@ -770,6 +772,20 @@
         var total = baseSubtotal - currentDiscount + currentShipping;
         document.getElementById('totalBayar').innerText = 'Rp. ' + numberFormat(total);
         document.getElementById('transferAmount').innerText = 'Rp. ' + numberFormat(total);
+
+        // Show/Hide Transfer Info based on service selection for Manual Transfer
+        var activeMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        if (activeMethod === 'transfer') {
+            var transferInfo = document.getElementById('transferInfo');
+            var proofSection = document.getElementById('proofUploadSection');
+            if (serviceSelect.value || forceShipping !== null) {
+                transferInfo.style.display = 'block';
+                proofSection.style.display = 'block';
+            } else {
+                transferInfo.style.display = 'none';
+                proofSection.style.display = 'none';
+            }
+        }
     }
 
     function applyVoucher() {
@@ -820,6 +836,10 @@
 
         var locationFields = [provinceSelect, citySelect, districtSelect, subdistrictSelect, courierSelect, serviceSelect];
 
+        var storeLocationBox = document.getElementById('storeLocationBox');
+        var shippingAddressGrid = document.getElementById('shippingAddressGrid');
+        var originSelect = document.getElementById('originSelect');
+
         // Reset display
         transferInfo.style.display = 'none';
         codNote.style.display = 'none';
@@ -827,13 +847,26 @@
         proofSection.style.display = 'none';
         proofInput.removeAttribute('required');
 
-        if (shippingSection) shippingSection.style.display = 'block';
+        // Defaults for non-pickup
+        if (storeLocationBox) storeLocationBox.style.display = 'none';
+        if (shippingAddressGrid) shippingAddressGrid.style.display = 'grid';
+
         locationFields.forEach(field => {
             if (field) {
                 field.removeAttribute('disabled');
                 field.setAttribute('required', 'required');
             }
         });
+
+        // Re-select default store if not pickup
+        if (method !== 'pickup' && originSelect) {
+            for (let i = 0; i < originSelect.options.length; i++) {
+                if (originSelect.options[i].getAttribute('data-default') === 'true') {
+                    originSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
 
         // Reset if previously from COD (which had fixed service)
         if (serviceSelect.innerHTML.includes('COD (Bayar di Tempat)')) {
@@ -843,8 +876,13 @@
         }
 
         if (method === 'transfer') {
-            transferInfo.style.display = 'block';
-            proofSection.style.display = 'block';
+            if (serviceSelect.value) {
+                transferInfo.style.display = 'block';
+                proofSection.style.display = 'block';
+            } else {
+                transferInfo.style.display = 'none';
+                proofSection.style.display = 'none';
+            }
             proofInput.setAttribute('required', 'required');
         } else if (method === 'cod') {
             codNote.style.display = 'block';
@@ -857,7 +895,9 @@
             updateTotalWithShipping(0);
         } else if (method === 'pickup') {
             pickupNote.style.display = 'block';
-            if (shippingSection) shippingSection.style.display = 'none';
+            if (storeLocationBox) storeLocationBox.style.display = 'block';
+            if (shippingAddressGrid) shippingAddressGrid.style.display = 'none';
+
             locationFields.forEach(field => {
                 if (field) field.removeAttribute('required');
             });
