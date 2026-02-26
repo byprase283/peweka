@@ -29,7 +29,7 @@ install_db.php
 
 # User uploads (Opsional, jika ada folder upload gambar)
 /uploads/
-
+/assets/img/products
 
 # OS files
 .DS_Store
