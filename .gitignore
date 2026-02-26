@@ -15,6 +15,22 @@ update_db_categories.php
 update_password.php
 install_db.php
 
+!/application/logs/index.html
+
+# Database (SQLite)
+/application/database/*.db
+/application/database/*.sqlite
+
+# Cache & Sessions
+/application/cache/*
+!/application/cache/index.html
+!/application/cache/.htaccess
+/application/session/*
+
+# User uploads (Opsional, jika ada folder upload gambar)
+/uploads/
+
+
 # OS files
 .DS_Store
 Thumbs.db
