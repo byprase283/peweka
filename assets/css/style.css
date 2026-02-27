@@ -1457,6 +1457,71 @@ img {
         order: -1;
         /* Summary becomes first on mobile */
     }
+
+    .mobile-summary-block {
+        display: block !important;
+    }
+}
+
+/* Mobile Summary Block - Aesthetics matching screenshot */
+.mobile-summary-block {
+    display: none;
+    /* Hidden by default on desktop */
+    background: var(--black-light);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.m-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.m-label {
+    color: var(--white);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.m-value {
+    color: var(--white);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.m-summary-divider {
+    height: 1.5px;
+    background: var(--yellow);
+    margin: 15px 0;
+    opacity: 0.8;
+}
+
+.m-summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.m-total-label {
+    color: var(--yellow);
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: var(--font-primary);
+}
+
+.m-total-value {
+    color: var(--yellow);
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: var(--font-primary);
+}
+
+.text-green {
+    color: var(--green) !important;
 }
 
 /* Utilities */
