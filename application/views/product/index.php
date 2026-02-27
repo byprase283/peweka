@@ -31,6 +31,17 @@
                                 <a href="<?= base_url('produk/' . $p->slug) ?>"><?= htmlspecialchars($p->name) ?></a>
                             </h3>
                             <div class="product-price">Rp <?= number_format($p->price, 0, ',', '.') ?></div>
+                            <div class="product-desc-wrapper mt-2" onclick="event.preventDefault(); event.stopPropagation();">
+                                <p class="product-desc-list collapsed" id="desc-list-<?= $p->id ?>">
+                                    <?= htmlspecialchars($p->description) ?>
+                                </p>
+                                <?php if (strlen($p->description) > 80): ?>
+                                    <button type="button" class="btn-toggle-list-desc"
+                                        onclick="toggleListDesc(this, <?= $p->id ?>)">
+                                        Lihat Selengkapnya
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -53,4 +64,58 @@
         color: var(--gray-500);
         margin-top: 10px;
     }
+
+    /* Product List Description Toggle Styles */
+    .product-desc-wrapper {
+        position: relative;
+        z-index: 5;
+    }
+
+    .product-desc-list {
+        font-size: 0.85rem;
+        color: var(--gray-400);
+        margin-bottom: 4px;
+        line-height: 1.5;
+        transition: all 0.3s ease;
+    }
+
+    .product-desc-list.collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        max-height: 3em;
+    }
+
+    .btn-toggle-list-desc {
+        background: none;
+        border: none;
+        color: var(--yellow);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0;
+        cursor: pointer;
+        display: block;
+        transition: all 0.2s;
+    }
+
+    .btn-toggle-list-desc:hover {
+        text-decoration: underline;
+        transform: translateX(3px);
+    }
 </style>
+
+<script>
+    function toggleListDesc(btn, id) {
+        const desc = document.getElementById('desc-list-' + id);
+        const isCollapsed = desc.classList.contains('collapsed');
+
+        if (isCollapsed) {
+            desc.classList.remove('collapsed');
+            btn.textContent = 'Sembunyikan';
+        } else {
+            desc.classList.add('collapsed');
+            btn.textContent = 'Lihat Selengkapnya';
+        }
+    }
+</script>
