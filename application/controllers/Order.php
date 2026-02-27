@@ -24,7 +24,18 @@ class Order extends CI_Controller
             redirect('cart');
         }
 
-        $this->session->set_userdata('checkout_cart', json_decode($cart_data));
+        $cart = json_decode($cart_data);
+        if ($cart) {
+            foreach ($cart as $item) {
+                // Re-verify price from database to prevent zero price or tampering
+                $variant = $this->Product_model->get_variant_by_id($item->variant_id);
+                if ($variant) {
+                    $item->product_price = (float) $variant->price;
+                }
+            }
+        }
+
+        $this->session->set_userdata('checkout_cart', $cart);
         redirect('checkout');
     }
 

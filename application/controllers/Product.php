@@ -56,7 +56,10 @@ class Product extends CI_Controller
         foreach ($ids as $id) {
             $variant = $this->Product_model->get_variant_by_id((int) $id);
             if ($variant) {
-                $results[$id] = (int) $variant->stock;
+                $results[$id] = [
+                    'stock' => (int) $variant->stock,
+                    'price' => (float) $variant->price
+                ];
             }
         }
 

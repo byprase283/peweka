@@ -329,10 +329,24 @@
                 var cart = getCart();
                 var updated = false;
                 cart.forEach(item => {
-                    if (stocks[item.variant_id] !== undefined) {
-                        if (item.stock !== stocks[item.variant_id]) {
-                            item.stock = stocks[item.variant_id];
-                            updated = true;
+                    const info = stocks[item.variant_id];
+                    if (info !== undefined) {
+                        // Handle new object format {stock, price}
+                        if (typeof info === 'object') {
+                            if (item.stock !== info.stock) {
+                                item.stock = info.stock;
+                                updated = true;
+                            }
+                            if (item.product_price !== info.price) {
+                                item.product_price = info.price;
+                                updated = true;
+                            }
+                        } else {
+                            // Fallback for old simple stock response
+                            if (item.stock !== info) {
+                                item.stock = info;
+                                updated = true;
+                            }
                         }
                     }
                 });
