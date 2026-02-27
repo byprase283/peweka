@@ -460,15 +460,17 @@
                             <div class="bank-info">
                                 <div class="bank-row">
                                     <span class="bank-label">Bank</span>
-                                    <span class="bank-value">BCA</span>
+                                    <span class="bank-value"><?= get_setting('bank_name', 'BCA') ?></span>
                                 </div>
                                 <div class="bank-row">
                                     <span class="bank-label">No. Rekening</span>
-                                    <span class="bank-value">1234567890</span>
+                                    <span
+                                        class="bank-value"><?= get_setting('bank_account_number', '1234567890') ?></span>
                                 </div>
                                 <div class="bank-row">
                                     <span class="bank-label">Atas Nama</span>
-                                    <span class="bank-value"><?= get_setting('site_name', 'Peweka') ?> Official</span>
+                                    <span
+                                        class="bank-value"><?= get_setting('bank_account_name', get_setting('site_name', 'Peweka') . ' Official') ?></span>
                                 </div>
                                 <div class="bank-row">
                                     <span class="bank-label">Jumlah</span>
@@ -498,7 +500,7 @@
                             <span class="m-label">Subtotal</span>
                             <span class="m-value" id="mSubtotal">Rp. <?= number_format($subtotal, 0, ',', '.') ?></span>
                         </div>
-                        
+
                         <div class="m-summary-row" id="mDiscountRow" style="display: none;">
                             <span class="m-label">Diskon</span>
                             <span class="m-value text-green" id="mDiscount">- Rp. 0</span>
@@ -513,7 +515,8 @@
 
                         <div class="m-summary-total">
                             <span class="m-total-label">Total Bayar</span>
-                            <span class="m-total-value" id="mTotalBayar">Rp. <?= number_format($subtotal, 0, ',', '.') ?></span>
+                            <span class="m-total-value" id="mTotalBayar">Rp.
+                                <?= number_format($subtotal, 0, ',', '.') ?></span>
                         </div>
                     </div>
 
@@ -521,71 +524,72 @@
                         style="margin-top: 20px;">
                         <i class="fas fa-paper-plane"></i> Kirim Pesanan
                     </button>
-            </div>
+                </div>
 
-            <!-- Right: Order Summary -->
-            <div class="order-summary-card">
-                <h3><i class="fas fa-receipt"></i> Ringkasan Pesanan</h3>
+                <!-- Right: Order Summary -->
+                <div class="order-summary-card">
+                    <h3><i class="fas fa-receipt"></i> Ringkasan Pesanan</h3>
 
-                <?php foreach ($items as $item): ?>
-                    <div class="summary-item mb-3 p-2 rounded" style="background: rgba(255,255,255,0.05);">
-                        <img src="<?= base_url('assets/img/products/' . $item->product_image) ?>"
-                            alt="<?= htmlspecialchars($item->product_name) ?>"
-                            onerror="this.src='<?= base_url('assets/img/products/default.svg') ?>'"
-                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
-                        <div class="summary-item-info ms-3">
-                            <h4 style="font-size: 0.95rem; margin-bottom: 4px;">
-                                <?= htmlspecialchars($item->product_name) ?>
-                            </h4>
-                            <p style="font-size: 0.8rem; margin-bottom: 2px; color: var(--gray-400);">
-                                <?= $item->size ?> | <?= $item->color ?>
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <span style="font-size: 0.85rem; color: var(--yellow);"><?= $item->quantity ?> x Rp.
-                                    <?= number_format($item->product_price, 0, ',', '.') ?></span>
-                                <span style="font-weight: 600; font-size: 0.9rem; margin-left: auto;">Rp.
-                                    <?= number_format($item->product_price * $item->quantity, 0, ',', '.') ?></span>
+                    <?php foreach ($items as $item): ?>
+                        <div class="summary-item mb-3 p-2 rounded" style="background: rgba(255,255,255,0.05);">
+                            <img src="<?= base_url('assets/img/products/' . $item->product_image) ?>"
+                                alt="<?= htmlspecialchars($item->product_name) ?>"
+                                onerror="this.src='<?= base_url('assets/img/products/default.svg') ?>'"
+                                style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                            <div class="summary-item-info ms-3">
+                                <h4 style="font-size: 0.95rem; margin-bottom: 4px;">
+                                    <?= htmlspecialchars($item->product_name) ?>
+                                </h4>
+                                <p style="font-size: 0.8rem; margin-bottom: 2px; color: var(--gray-400);">
+                                    <?= $item->size ?> | <?= $item->color ?>
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <span style="font-size: 0.85rem; color: var(--yellow);"><?= $item->quantity ?> x Rp.
+                                        <?= number_format($item->product_price, 0, ',', '.') ?></span>
+                                    <span style="font-weight: 600; font-size: 0.9rem; margin-left: auto;">Rp.
+                                        <?= number_format($item->product_price * $item->quantity, 0, ',', '.') ?></span>
+                                </div>
                             </div>
                         </div>
+                    <?php endforeach; ?>
+
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>Rp. <?= number_format($subtotal, 0, ',', '.') ?></span>
                     </div>
-                <?php endforeach; ?>
 
-                <div class="summary-row">
-                    <span>Subtotal</span>
-                    <span>Rp. <?= number_format($subtotal, 0, ',', '.') ?></span>
-                </div>
-
-                <!-- Voucher Section -->
-                <div class="voucher-section">
-                    <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block;">
-                        <i class="fas fa-ticket-alt"></i> Kode Voucher
-                    </label>
-                    <div class="voucher-input-group">
-                        <input type="text" name="voucher_code" id="voucherInput" placeholder="Masukkan kode">
-                        <button type="button" class="btn btn-outline btn-sm" onclick="applyVoucher()">Terapkan</button>
+                    <!-- Voucher Section -->
+                    <div class="voucher-section">
+                        <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; display: block;">
+                            <i class="fas fa-ticket-alt"></i> Kode Voucher
+                        </label>
+                        <div class="voucher-input-group">
+                            <input type="text" name="voucher_code" id="voucherInput" placeholder="Masukkan kode">
+                            <button type="button" class="btn btn-outline btn-sm"
+                                onclick="applyVoucher()">Terapkan</button>
+                        </div>
+                        <div class="voucher-msg" id="voucherMsg"></div>
                     </div>
-                    <div class="voucher-msg" id="voucherMsg"></div>
-                </div>
 
-                <div class="summary-row" id="discountRow" style="display: none;">
-                    <span>Diskon</span>
-                    <span class="discount" id="discountAmount">- Rp. 0</span>
-                </div>
+                    <div class="summary-row" id="discountRow" style="display: none;">
+                        <span>Diskon</span>
+                        <span class="discount" id="discountAmount">- Rp. 0</span>
+                    </div>
 
-                <div class="summary-row">
-                    <span>Ongkos Kirim</span>
-                    <span id="shippingCost">Dihitung otomatis</span>
-                </div>
+                    <div class="summary-row">
+                        <span>Ongkos Kirim</span>
+                        <span id="shippingCost">Dihitung otomatis</span>
+                    </div>
 
-                <div class="summary-total">
-                    <span>Total Bayar</span>
-                    <span id="totalBayar">Rp. <?= number_format($subtotal, 0, ',', '.') ?></span>
+                    <div class="summary-total">
+                        <span>Total Bayar</span>
+                        <span id="totalBayar">Rp. <?= number_format($subtotal, 0, ',', '.') ?></span>
+                    </div>
                 </div>
             </div>
+            <input type="hidden" name="shipping_cost" id="shippingCostInput" value="0">
+        </form>
     </div>
-    <input type="hidden" name="shipping_cost" id="shippingCostInput" value="0">
-    </form>
-</div>
 </div>
 
 <script>
@@ -800,7 +804,7 @@
         document.getElementById('transferAmount').innerText = 'Rp. ' + numberFormat(total);
 
         // Update Mobile Summary
-        if(document.getElementById('mTotalBayar')) {
+        if (document.getElementById('mTotalBayar')) {
             document.getElementById('mTotalBayar').innerText = 'Rp. ' + numberFormat(total);
             document.getElementById('mSubtotal').innerText = 'Rp. ' + numberFormat(baseSubtotal);
             document.getElementById('mDiscount').innerText = '- Rp. ' + numberFormat(currentDiscount);

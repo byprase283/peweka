@@ -218,38 +218,71 @@
                     <small class="text-muted">Set ke 0 untuk menonaktifkan diskon global.</small>
                 </div>
             </div>
-        </div>
-
-        <!-- Bulk Image Optimizer -->
-        <div class="row mt-4 pt-4 border-top border-secondary">
-            <div class="col-md-12">
-                <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Optimasi Media</h4>
-                <div class="alert alert-info bg-dark border-info text-info mb-4">
-                    <i class="fas fa-info-circle"></i>
-                    <strong>Tips:</strong> Jika Anda mengupload gambar yang sangat besar (di atas 1MB), sistem akan
-                    otomatis mengecilkannya. Namun, untuk gambar-gambar lama yang terlanjur besar atau jika Anda baru
-                    saja mengubah pengaturan kompresi, Anda bisa menggunakan tombol di bawah ini.
+            <!-- Pengaturan Rekening Pembayaran -->
+            <div class="row mt-4 pt-4 border-top border-secondary">
+                <div class="col-md-12">
+                    <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Rekening
+                        Pembayaran</h4>
                 </div>
-                <div class="stat-card bg-dark border-secondary p-4 rounded-lg d-flex justify-content-between align-items-center"
-                    style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
-                    <div>
-                        <h5 class="mb-1" style="color: var(--yellow);">Bulk Image Optimizer</h5>
-                        <p class="text-muted small mb-0">Scan folder produk dan kompres semua gambar yang ukurannya di
-                            atas 500KB secara massal.</p>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Nama Bank</label>
+                        <input type="text" name="bank_name" class="form-control"
+                            value="<?= htmlspecialchars($settings->bank_name ?? 'BCA') ?>"
+                            placeholder="Contoh: BCA, Mandiri, BRI">
                     </div>
-                    <a href="<?= base_url('admin/bulk_optimize') ?>" class="btn btn-outline"
-                        onclick="return confirm('Proses ini mungkin memakan waktu beberapa menit tergantung jumlah gambar. Lanjutkan?')">
-                        <i class="fas fa-compress-arrows-alt"></i> Optimasi Sekarang
-                    </a>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Nomor Rekening</label>
+                        <input type="text" name="bank_account_number" class="form-control"
+                            value="<?= htmlspecialchars($settings->bank_account_number ?? '') ?>"
+                            placeholder="Masukkan nomor rekening">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Atas Nama (Pemilik Rekening)</label>
+                        <input type="text" name="bank_account_name" class="form-control"
+                            value="<?= htmlspecialchars($settings->bank_account_name ?? '') ?>"
+                            placeholder="Masukkan nama pemilik rekening">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="mt-4 pt-3 border-top border-secondary">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Simpan Perubahan
-            </button>
-        </div>
+            <!-- Bulk Image Optimizer -->
+            <div class="row mt-4 pt-4 border-top border-secondary">
+                <div class="col-md-12">
+                    <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Optimasi Media
+                    </h4>
+                    <div class="alert alert-info bg-dark border-info text-info mb-4">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Tips:</strong> Jika Anda mengupload gambar yang sangat besar (di atas 1MB), sistem akan
+                        otomatis mengecilkannya. Namun, untuk gambar-gambar lama yang terlanjur besar atau jika Anda
+                        baru
+                        saja mengubah pengaturan kompresi, Anda bisa menggunakan tombol di bawah ini.
+                    </div>
+                    <div class="stat-card bg-dark border-secondary p-4 rounded-lg d-flex justify-content-between align-items-center"
+                        style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+                        <div>
+                            <h5 class="mb-1" style="color: var(--yellow);">Bulk Image Optimizer</h5>
+                            <p class="text-muted small mb-0">Scan folder produk dan kompres semua gambar yang ukurannya
+                                di
+                                atas 500KB secara massal.</p>
+                        </div>
+                        <a href="<?= base_url('admin/bulk_optimize') ?>" class="btn btn-outline"
+                            onclick="return confirm('Proses ini mungkin memakan waktu beberapa menit tergantung jumlah gambar. Lanjutkan?')">
+                            <i class="fas fa-compress-arrows-alt"></i> Optimasi Sekarang
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top border-secondary">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Simpan Perubahan
+                </button>
+            </div>
     </form>
 </div>
 

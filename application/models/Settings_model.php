@@ -35,6 +35,9 @@ class Settings_model extends CI_Model
                 `theme_text_color` VARCHAR(20) DEFAULT '#ffffff',
                 `global_discount_percent` INT DEFAULT 0,
                 `global_discount_name` VARCHAR(255) DEFAULT NULL,
+                `bank_name` VARCHAR(100) DEFAULT 'BCA',
+                `bank_account_number` VARCHAR(100) DEFAULT '1234567890',
+                `bank_account_name` VARCHAR(255) DEFAULT 'Peweka Official',
                 `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )");
             $this->db->insert('site_settings', ['id' => 1, 'site_name' => 'Peweka']);
@@ -70,6 +73,15 @@ class Settings_model extends CI_Model
         }
         if (!$this->db->field_exists('global_discount_name', 'site_settings')) {
             $this->db->query("ALTER TABLE `site_settings` ADD `global_discount_name` VARCHAR(255) DEFAULT NULL AFTER `global_discount_percent` ");
+        }
+        if (!$this->db->field_exists('bank_name', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `bank_name` VARCHAR(100) DEFAULT 'BCA' AFTER `global_discount_name` ");
+        }
+        if (!$this->db->field_exists('bank_account_number', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `bank_account_number` VARCHAR(100) DEFAULT '1234567890' AFTER `bank_name` ");
+        }
+        if (!$this->db->field_exists('bank_account_name', 'site_settings')) {
+            $this->db->query("ALTER TABLE `site_settings` ADD `bank_account_name` VARCHAR(255) DEFAULT 'Peweka Official' AFTER `bank_account_number` ");
         }
 
         $query = $this->db->get_where('site_settings', ['id' => 1]);

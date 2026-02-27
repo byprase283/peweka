@@ -933,7 +933,10 @@ class Admin extends CI_Controller
             'theme_bg_color' => $this->input->post('theme_bg_color'),
             'theme_text_color' => $this->input->post('theme_text_color'),
             'global_discount_percent' => (int) $this->input->post('global_discount_percent'),
-            'global_discount_name' => $this->input->post('global_discount_name')
+            'global_discount_name' => $this->input->post('global_discount_name'),
+            'bank_name' => $this->input->post('bank_name'),
+            'bank_account_number' => $this->input->post('bank_account_number'),
+            'bank_account_name' => $this->input->post('bank_account_name')
         ];
 
         // Handle Logo Upload
