@@ -40,9 +40,16 @@
                     <?php endif; ?>
                     <div class="price-tag">Rp <?= number_format($product->price, 0, ',', '.') ?></div>
                 </div>
-                <p class="product-desc">
-                    <?= htmlspecialchars($product->description) ?>
-                </p>
+                <div class="product-desc-wrapper">
+                    <p class="product-desc collapsed" id="productDesc">
+                        <?= nl2br(htmlspecialchars($product->description)) ?>
+                    </p>
+                    <?php if (strlen($product->description) > 150): ?>
+                        <button type="button" class="btn-toggle-desc" onclick="toggleFullDesc(this)">
+                            <span>Lihat Selengkapnya</span> <i class="fas fa-chevron-down"></i>
+                        </button>
+                    <?php endif; ?>
+                </div>
 
                 <form id="productForm">
                     <input type="hidden" name="product_id" value="<?= $product->id ?>">
@@ -155,6 +162,54 @@
         text-decoration: line-through;
         color: var(--gray-500);
         font-size: 1.1rem;
+    }
+
+    .product-desc-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .product-desc {
+        color: var(--gray-400);
+        margin-bottom: 0.5rem;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .product-desc.collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        max-height: 4.8em;
+    }
+
+    .btn-toggle-desc {
+        background: none;
+        border: none;
+        color: var(--yellow);
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-toggle-desc:hover {
+        color: var(--white);
+        transform: translateX(5px);
+    }
+
+    .btn-toggle-desc i {
+        font-size: 0.75rem;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-toggle-desc.active i {
+        transform: rotate(180deg);
     }
 
     .modal-overlay {
@@ -381,6 +436,21 @@
         document.getElementById('qtyInput').max = variant.stock;
         document.getElementById('qtyInput').value = 1;
         document.getElementById('addToCartBtn').disabled = false;
+
+        // Update Price Display
+        if (variant.price) {
+            const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(variant.price).replace('Rp', 'Rp ');
+            document.querySelector('.price-tag').textContent = formattedPrice;
+            document.getElementById('productPrice').value = variant.price;
+
+            // Handle Original Price Display for variants
+            const originalPriceTag = document.querySelector('.original-price-tag');
+            if (originalPriceTag && variant.original_price && variant.original_price > variant.price) {
+                const formattedOriginal = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(variant.original_price).replace('Rp', 'Rp ');
+                originalPriceTag.textContent = formattedOriginal;
+            }
+        }
+
         // Visual feedback that the button is "ready"
         document.getElementById('addToCartBtn').style.opacity = '1';
     }
@@ -424,6 +494,7 @@
             variant_id: selectedVariantObj.id,
             size: selectedVariantObj.size,
             color: selectedVariantObj.color,
+            stock: parseInt(selectedVariantObj.stock),
             quantity: parseInt(document.getElementById('qtyInput').value)
         };
 
@@ -461,6 +532,21 @@
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+    function toggleFullDesc(btn) {
+        const desc = document.getElementById('productDesc');
+        const isCollapsed = desc.classList.contains('collapsed');
+
+        if (isCollapsed) {
+            desc.classList.remove('collapsed');
+            btn.classList.add('active');
+            btn.querySelector('span').textContent = 'Sembunyikan';
+        } else {
+            desc.classList.add('collapsed');
+            btn.classList.remove('active');
+            btn.querySelector('span').textContent = 'Lihat Selengkapnya';
+            desc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 </script>
 

@@ -12,6 +12,9 @@ class Order_model extends CI_Model
         }
         $order_data['created_at'] = date('Y-m-d H:i:s');
 
+        // Start Transaction
+        $this->db->trans_start();
+
         $this->db->insert('orders', $order_data);
         $order_id = $this->db->insert_id();
 
@@ -19,10 +22,23 @@ class Order_model extends CI_Model
             $item['order_id'] = $order_id;
             $this->db->insert('order_items', $item);
 
-            // Reduce stock
+            // Reduce stock atomically with safety check
             $this->db->set('stock', 'stock - ' . (int) $item['quantity'], FALSE);
             $this->db->where('id', $item['variant_id']);
+            $this->db->where('stock >=', (int) $item['quantity']); // CRITICAL: Atomic check
             $this->db->update('product_variants');
+
+            // If update fails (stock taken by someone else just now), fail the whole thing
+            if ($this->db->affected_rows() === 0) {
+                $this->db->trans_rollback();
+                return FALSE;
+            }
+        }
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            return FALSE;
         }
 
         return $order_data['order_code'];
@@ -120,5 +136,20 @@ class Order_model extends CI_Model
     {
         $this->db->where('id', $id);
         return $this->db->update('orders', $data);
+    }
+
+    public function restore_stock_by_order($order_id)
+    {
+        $items = $this->db->get_where('order_items', ['order_id' => $order_id])->result();
+        foreach ($items as $item) {
+            // Check if variant still exists
+            $variant = $this->db->get_where('product_variants', ['id' => $item->variant_id])->row();
+            if ($variant) {
+                $this->db->set('stock', 'stock + ' . (int) $item->quantity, FALSE);
+                $this->db->where('id', $item->variant_id);
+                $this->db->update('product_variants');
+            }
+        }
+        return TRUE;
     }
 }

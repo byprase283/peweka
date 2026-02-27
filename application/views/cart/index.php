@@ -170,29 +170,36 @@
         position: sticky;
         top: 120px;
     }
+
+    .stock-warning-card {
+        border-color: #dc3545 !important;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2) !important;
+    }
 </style>
 
 <div class="cart-page-wrapper">
     <div class="container">
 
-        <div
-            class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-secondary border-opacity-25">
-            <div
-                class="d-flex align-items-center justify-content-between mb-5 pb-3 border-bottom border-secondary border-opacity-25">
-
-                <h1 class="h4 text-white mb-0 fw-bold d-flex align-items-center gap-2">
-                    <i class="fas fa-shopping-bag text-warning-custom"></i>
-                    Keranjang <span class="badge bg-warning text-dark rounded-pill ms-1" id="cartCountHeader">0</span>
-                </h1>
-
-                <!-- <a href="<?= base_url('shop') ?>" class="btn btn-outline-warning btn-sm rounded-pill px-4 fw-bold">
-                    <i class="fas fa-plus me-1"></i> Tambah Item
-                </a> -->
-
-            </div>
-
-
+        <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+            <h1 class="h4 text-white mb-0 fw-bold d-flex align-items-center gap-2">
+                <i class="fas fa-shopping-bag text-warning-custom"></i>
+                Keranjang <span class="badge bg-warning text-dark rounded-pill ms-1" id="cartCountHeader">0</span>
+            </h1>
         </div>
+
+        <?php if ($this->session->flashdata('error')): ?>
+            <div class="alert alert-danger border-0 rounded-4 p-4 mb-4 shadow-lg animate-in" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.2) !important;">
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; flex-shrink: 0;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-danger mb-1">Terjadi Masalah Pesanan</h6>
+                        <p class="text-white opacity-75 small mb-0"><?= $this->session->flashdata('error') ?></p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <div class="row g-4">
 
@@ -293,7 +300,40 @@
 </template>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () { renderCart(); });
+    document.addEventListener('DOMContentLoaded', function () { 
+        renderCart(); 
+        syncCartStock(); // Refresh stock from DB on load
+    });
+
+    function syncCartStock() {
+        var cart = getCart();
+        if (!cart || cart.length === 0) return;
+
+        var ids = cart.map(item => item.variant_id);
+        
+        fetch('<?= base_url('product/get_variant_stock') ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ 'ids[]': ids }).toString()
+        })
+        .then(response => response.json())
+        .then(stocks => {
+            var cart = getCart();
+            var updated = false;
+            cart.forEach(item => {
+                if (stocks[item.variant_id] !== undefined) {
+                    if (item.stock !== stocks[item.variant_id]) {
+                        item.stock = stocks[item.variant_id];
+                        updated = true;
+                    }
+                }
+            });
+            if (updated) {
+                saveCart(cart);
+                renderCart();
+            }
+        });
+    }
 
     function renderCart() {
         var cart = (typeof getCart === 'function') ? getCart() : [];
@@ -336,6 +376,17 @@
 
             subtotal += itemTotal;
             totalQty += item.quantity;
+
+            // Stock Availability Warning
+            if (item.stock !== undefined && item.quantity > item.stock) {
+                card.classList.add('stock-warning-card');
+                var warningMsg = item.stock <= 0 ? 'Maaf, stok sudah habis.' : 'Stok hanya sisa ' + item.stock + '.';
+                var warningDiv = document.createElement('div');
+                warningDiv.className = 'text-danger small mt-2 fw-bold animate-in';
+                warningDiv.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i> ' + warningMsg;
+                clone.querySelector('.cart-content-area').appendChild(warningDiv);
+            }
+
             content.appendChild(clone);
         });
 
@@ -365,8 +416,16 @@
         var cart = getCart();
 
         if (cart[index]) {
-            cart[index].quantity += delta;
-            if (cart[index].quantity < 1) cart[index].quantity = 1;
+            var newQty = cart[index].quantity + delta;
+            var maxStock = cart[index].stock || 999;
+
+            if (newQty > maxStock) {
+                if (typeof showNotice === 'function') showNotice("Maksimal stok tersedia hanya " + maxStock, "error");
+                newQty = maxStock;
+            }
+
+            if (newQty < 1) newQty = 1;
+            cart[index].quantity = newQty;
             saveCart(cart); renderCart();
         }
     }
@@ -382,7 +441,26 @@
     }
 
     function submitCheckout() {
-        if (getCart().length > 0) document.getElementById('checkoutForm').submit();
-        else alert("Keranjang kosong");
+        var cart = getCart();
+        if (cart.length === 0) {
+            alert("Keranjang kosong");
+            return;
+        }
+
+        // Final stock check before submission
+        var overstockItems = cart.filter(item => item.stock !== undefined && item.quantity > item.stock);
+        if (overstockItems.length > 0) {
+            if (typeof showNotice === 'function') {
+                showNotice("Beberapa item melebihi stok tersedia. Silakan sesuaikan jumlahnya.", "error");
+            } else {
+                alert("Beberapa item melebihi stok tersedia. Silakan sesuaikan jumlahnya.");
+            }
+            // Scroll to the first warning if possible
+            var firstWarning = document.querySelector('.stock-warning-card');
+            if (firstWarning) firstWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        document.getElementById('checkoutForm').submit();
     }
 </script>

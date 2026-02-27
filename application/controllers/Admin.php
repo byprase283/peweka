@@ -329,7 +329,7 @@ class Admin extends CI_Controller
         }
 
         $this->form_validation->set_rules('name', 'Nama Produk', 'required|trim');
-        $this->form_validation->set_rules('price', 'Harga', 'required|integer');
+        $this->form_validation->set_rules('price', 'Harga', 'integer');
         $this->form_validation->set_rules('description', 'Deskripsi', 'required');
 
         if ($this->form_validation->run() === FALSE) {
@@ -389,6 +389,7 @@ class Admin extends CI_Controller
         $colors = $this->input->post('variant_color');
         $hexes = $this->input->post('variant_hex');
         $stocks = $this->input->post('variant_stock');
+        $prices = $this->input->post('variant_price');
 
         if ($sizes) {
             for ($i = 0; $i < count($sizes); $i++) {
@@ -399,11 +400,15 @@ class Admin extends CI_Controller
                                 'size' => $sizes[$i],
                                 'color' => $colors[$i],
                                 'color_hex' => $hexes[$i] ?: '#000000',
-                                'stock' => (int) $stocks[$i]
+                                'stock' => (int) $stocks[$i],
+                                'price' => !empty($prices[$i]) ? preg_replace('/[^0-9]/', '', $prices[$i]) : $this->input->post('price')
                             ]);
                 }
             }
         }
+
+        // Sync lowest price to products table
+        $this->Product_model->sync_min_price($product_id);
 
         // Handle Multiple Images (Gallery)
         if (!empty($_FILES['gallery']['name'][0])) {
@@ -479,7 +484,7 @@ class Admin extends CI_Controller
         }
 
         $this->form_validation->set_rules('name', 'Nama Produk', 'required|trim');
-        $this->form_validation->set_rules('price', 'Harga', 'required|integer');
+        $this->form_validation->set_rules('price', 'Harga', 'integer');
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors());
@@ -539,6 +544,7 @@ class Admin extends CI_Controller
         $colors = $this->input->post('variant_color');
         $hexes = $this->input->post('variant_hex');
         $stocks = $this->input->post('variant_stock');
+        $prices = $this->input->post('variant_price');
 
         if ($sizes) {
             for ($i = 0; $i < count($sizes); $i++) {
@@ -549,11 +555,15 @@ class Admin extends CI_Controller
                                 'size' => $sizes[$i],
                                 'color' => $colors[$i],
                                 'color_hex' => $hexes[$i] ?: '#000000',
-                                'stock' => (int) $stocks[$i]
+                                'stock' => (int) $stocks[$i],
+                                'price' => !empty($prices[$i]) ? preg_replace('/[^0-9]/', '', $prices[$i]) : $this->input->post('price')
                             ]);
                 }
             }
         }
+
+        // Sync lowest price to products table
+        $this->Product_model->sync_min_price($id);
 
         // Handle Multiple Images (Gallery)
         if (!empty($_FILES['gallery']['name'][0])) {

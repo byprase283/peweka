@@ -204,9 +204,22 @@ class Order extends CI_Controller
         $subtotal = 0;
         $items = [];
         foreach ($cart as $item) {
-            // Re-verify price from DB to ensure it's up to date with global discounts
-            $db_product = $this->Product_model->get_by_id($item->product_id);
-            $real_price = $db_product ? $db_product->price : $item->product_price;
+            // Re-verify price from Variant DB to ensure it's up to date and correct for the selected size
+            $db_variant = $this->Product_model->get_variant_by_id($item->variant_id);
+            if (!$db_variant) {
+                $this->session->set_flashdata('error', 'Varian produk ' . $item->product_name . ' tidak ditemukan.');
+                redirect('cart');
+                return;
+            }
+
+            // Check Stock Availability
+            if ($db_variant->stock < $item->quantity) {
+                $this->session->set_flashdata('error', 'Maaf, stok ' . $item->product_name . ' (' . $item->size . ') tidak mencukupi. Sisa stok: ' . $db_variant->stock);
+                redirect('cart');
+                return;
+            }
+
+            $real_price = $db_variant->price;
 
             $item_subtotal = $real_price * $item->quantity;
             $subtotal += $item_subtotal;
@@ -370,7 +383,13 @@ class Order extends CI_Controller
             }
         }
 
-        $this->Order_model->create($order_data, $items);
+        $created_code = $this->Order_model->create($order_data, $items);
+        if (!$created_code) {
+            $this->session->set_flashdata('error', 'Maaf, stok baru saja habis dibeli pelanggan lain. Silakan periksa kembali keranjang Anda.');
+            redirect('cart');
+            return;
+        }
+
         $this->session->unset_userdata('checkout_cart');
 
         // Return order code for success page
@@ -414,6 +433,7 @@ class Order extends CI_Controller
                 } else if ($status === 'expire' || $status === 'cancel' || $status === 'deny') {
                     $notes = ($status === 'expire') ? 'Waktu pembayaran telah habis (Expired).' : (($status === 'cancel') ? 'Pembayaran dibatalkan.' : 'Pembayaran ditolak.');
                     $this->Order_model->update_status($order->id, 'rejected', 'failed', $notes);
+                    $this->Order_model->restore_stock_by_order($order->id);
                     redirect('order/track/' . $order->order_code);
                     return;
                 }
@@ -533,6 +553,12 @@ class Order extends CI_Controller
         if ($new_status) {
             $payment_status = ($new_status === 'confirmed') ? 'paid' : ($new_status === 'rejected' ? 'failed' : 'pending');
             $this->Order_model->update_status($order->id, $new_status, $payment_status, isset($notes) ? $notes : 'Midtrans Status: ' . $transaction_status);
+
+            // Restore stock if it was previously deducted and now rejected
+            if ($new_status === 'rejected') {
+                $this->Order_model->restore_stock_by_order($order->id);
+            }
+
             log_message('info', 'Midtrans Notification: Order ' . $order_code . ' status updated to ' . $new_status);
         }
 

@@ -21,6 +21,44 @@
     .card-badge.discount {
         background: #dc3545 !important;
     }
+
+    .card-desc-wrapper {
+        margin-bottom: 12px;
+        position: relative;
+        z-index: 5;
+    }
+
+    .card-desc {
+        font-size: 0.85rem;
+        color: var(--gray-400);
+        margin-bottom: 4px;
+        line-height: 1.5;
+        transition: all 0.3s ease;
+    }
+
+    .card-desc.collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        max-height: 3em;
+    }
+
+    .btn-toggle-card-desc {
+        background: none;
+        border: none;
+        color: var(--yellow);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0;
+        cursor: pointer;
+        display: block;
+        margin-top: 2px;
+    }
+
+    .btn-toggle-card-desc:hover {
+        text-decoration: underline;
+    }
 </style>
 <!-- Hero Section -->
 <section class="hero" id="home">
@@ -98,9 +136,17 @@
                             <h3>
                                 <?= htmlspecialchars($product->name) ?>
                             </h3>
-                            <p class="card-desc">
-                                <?= htmlspecialchars($product->description) ?>
-                            </p>
+                            <div class="card-desc-wrapper" onclick="event.preventDefault(); event.stopPropagation();">
+                                <p class="card-desc collapsed" id="desc-<?= $product->id ?>">
+                                    <?= htmlspecialchars($product->description) ?>
+                                </p>
+                                <?php if (strlen($product->description) > 80): ?>
+                                    <button type="button" class="btn-toggle-card-desc"
+                                        onclick="toggleCardDesc(this, <?= $product->id ?>)">
+                                        Lihat Selengkapnya
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                             <div class="price-area">
                                 <?php if ($product->discount_percent > 0): ?>
                                     <span class="price-old">Rp <?= number_format($product->original_price, 0, ',', '.') ?></span>
@@ -174,3 +220,18 @@
         </div>
     </div>
 </section>
+
+<script>
+    function toggleCardDesc(btn, id) {
+        const desc = document.getElementById('desc-' + id);
+        const isCollapsed = desc.classList.contains('collapsed');
+
+        if (isCollapsed) {
+            desc.classList.remove('collapsed');
+            btn.textContent = 'Sembunyikan';
+        } else {
+            desc.classList.add('collapsed');
+            btn.textContent = 'Lihat Selengkapnya';
+        }
+    }
+</script>

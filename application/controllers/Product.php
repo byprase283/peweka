@@ -42,4 +42,25 @@ class Product extends CI_Controller
         $this->load->view('product/detail', $data);
         $this->load->view('layout/footer');
     }
+
+    public function get_variant_stock()
+    {
+        $ids = $this->input->post('ids');
+        if (empty($ids) || !is_array($ids)) {
+            header('Content-Type: application/json');
+            echo json_encode([]);
+            return;
+        }
+
+        $results = [];
+        foreach ($ids as $id) {
+            $variant = $this->Product_model->get_variant_by_id((int) $id);
+            if ($variant) {
+                $results[$id] = (int) $variant->stock;
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($results);
+    }
 }

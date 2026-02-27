@@ -62,10 +62,16 @@ function saveCart(cart) {
 function addToCart(item) {
     var cart = getCart();
     var existingItem = cart.find(i => i.variant_id === item.variant_id);
-
     if (existingItem) {
-        existingItem.quantity += parseInt(item.quantity);
+        var newQty = existingItem.quantity + parseInt(item.quantity);
+        if (newQty > item.stock) {
+            existingItem.quantity = item.stock;
+            if (typeof showNotice === 'function') showNotice("Jumlah maksimal tercapai (Stok: " + item.stock + ")", "error");
+        } else {
+            existingItem.quantity = newQty;
+        }
     } else {
+        if (item.quantity > item.stock) item.quantity = item.stock;
         cart.push(item);
     }
 

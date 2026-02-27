@@ -88,14 +88,32 @@ class Product_model extends CI_Model
         return $this->_apply_global_discount($product);
     }
 
-    public function get_variants($product_id)
+    public function get_variants($product_id, $apply_discount = TRUE)
     {
-        return $this->db->get_where('product_variants', ['product_id' => $product_id])->result();
+        $results = $this->db->get_where('product_variants', ['product_id' => $product_id])->result();
+        if ($apply_discount) {
+            foreach ($results as &$r) {
+                $r->original_price = $r->price;
+                $discount_percent = (int) get_setting('global_discount_percent', 0);
+                if ($discount_percent > 0) {
+                    $r->price = $r->original_price - ($r->original_price * $discount_percent / 100);
+                }
+            }
+        }
+        return $results;
     }
 
-    public function get_variant_by_id($id)
+    public function get_variant_by_id($id, $apply_discount = TRUE)
     {
-        return $this->db->get_where('product_variants', ['id' => $id])->row();
+        $variant = $this->db->get_where('product_variants', ['id' => $id])->row();
+        if ($variant && $apply_discount) {
+            $variant->original_price = $variant->price;
+            $discount_percent = (int) get_setting('global_discount_percent', 0);
+            if ($discount_percent > 0) {
+                $variant->price = $variant->original_price - ($variant->original_price * $discount_percent / 100);
+            }
+        }
+        return $variant;
     }
 
     public function get_available_sizes($product_id)
@@ -144,6 +162,21 @@ class Product_model extends CI_Model
     {
         $this->db->where('product_id', $product_id);
         return $this->db->delete('product_variants');
+    }
+
+    public function sync_min_price($product_id)
+    {
+        // Get the minimum price from active variants with stock
+        $this->db->select_min('price');
+        $this->db->where('product_id', $product_id);
+        $this->db->where('stock >', 0);
+        $result = $this->db->get('product_variants')->row();
+
+        if ($result && $result->price !== NULL) {
+            $this->db->where('id', $product_id);
+            return $this->db->update('products', ['price' => $result->price]);
+        }
+        return FALSE;
     }
 
     // ===================================
