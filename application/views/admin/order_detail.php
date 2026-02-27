@@ -257,6 +257,8 @@
 
                         <form action="<?= base_url('admin/order/update-shipping/' . $order->id) ?>" method="POST"
                             style="display: flex; gap: 10px;">
+                            <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+                                value="<?= $this->security->get_csrf_hash() ?>">
                             <div class="input-group" style="flex: 1; display:flex;">
                                 <span
                                     style="background: var(--gray-800); padding: 10px 15px; border-radius: 8px 0 0 8px; border: 1px solid var(--gray-700); color: var(--gray-400); border-right:none;">Rp</span>
@@ -440,6 +442,8 @@
             <div class="modal-content"
                 style="background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
                 <form action="<?= base_url('admin/order/ship/' . $order->id) ?>" method="POST">
+                    <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+                        value="<?= $this->security->get_csrf_hash() ?>">
                     <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding: 20px;">
                         <h5 class="modal-title" style="color: var(--yellow); font-weight: 700;">
                             <i class="fas <?= $order->payment_method === 'pickup' ? 'fa-store' : 'fa-truck' ?> me-2"></i>

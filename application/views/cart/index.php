@@ -264,6 +264,8 @@
     </div> -->
 
     <form id="checkoutForm" action="<?= base_url('order/process_cart') ?>" method="post" class="d-none">
+        <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+            value="<?= $this->security->get_csrf_hash() ?>">
         <input type="hidden" name="cart_data" class="cartDataInput">
     </form>
 </div>
