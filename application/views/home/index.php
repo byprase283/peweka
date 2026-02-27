@@ -72,7 +72,7 @@
                 <p class="tagline">
                     <?= get_setting('site_about', 'Peweka hadir dengan koleksi streetwear premium yang menggabungkan budaya lokal dan gaya masa depan.') ?>
                 </p>
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div class="hero-btns">
                     <a href="#products" class="btn btn-primary btn-lg">
                         <i class="fas fa-shopping-bag"></i> Lihat Koleksi
                     </a>
@@ -136,17 +136,7 @@
                             <h3>
                                 <?= htmlspecialchars($product->name) ?>
                             </h3>
-                            <div class="card-desc-wrapper" onclick="event.preventDefault(); event.stopPropagation();">
-                                <p class="card-desc collapsed" id="desc-<?= $product->id ?>">
-                                    <?= htmlspecialchars($product->description) ?>
-                                </p>
-                                <?php if (strlen($product->description) > 80): ?>
-                                    <button type="button" class="btn-toggle-card-desc"
-                                        onclick="toggleCardDesc(this, <?= $product->id ?>)">
-                                        Lihat Selengkapnya
-                                    </button>
-                                <?php endif; ?>
-                            </div>
+
                             <div class="price-area">
                                 <?php if ($product->discount_percent > 0): ?>
                                     <span class="price-old">Rp <?= number_format($product->original_price, 0, ',', '.') ?></span>

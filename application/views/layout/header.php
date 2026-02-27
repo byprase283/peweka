@@ -278,9 +278,10 @@
 
             <ul class="navbar-menu" id="navMenu">
                 <li><a href="<?= base_url() ?>">Home</a></li>
-                <li><a href="<?= base_url('produk') ?>"
-                        class="<?= ($this->uri->segment(1) == 'shop' || $this->uri->segment(1) == 'produk') ? 'active' : '' ?>">Belanja</a>
-                </li>
+                <!-- <li> -->
+                <!-- <a href="<?= base_url('produk') ?>" -->
+                <!-- class="<?= ($this->uri->segment(1) == 'shop' || $this->uri->segment(1) == 'produk') ? 'active' : '' ?>">Belanja</a> -->
+                <!-- </li> -->
                 <li><a href="<?= base_url() ?>#products">Produk</a></li>
                 <li><a href="<?= base_url() ?>#about">Tentang</a></li>
                 <?php if ($ig = get_setting('instagram_url')): ?>

@@ -94,7 +94,7 @@
 
                     <!-- Color Selector -->
                     <div class="variant-selector">
-                        <label><i class="fas fa-palette"></i> Pilih Warna</label>
+                        <label><i class="fas fa-palette"></i> Warna</label>
                         <div class="color-options" id="colorOptions">
                             <p class="text-gray" style="font-size: 0.85rem;">Pilih ukuran terlebih dahulu</p>
                         </div>
@@ -394,6 +394,9 @@
         });
 
         uniqueColors.forEach(function (v) {
+            var wrapper = document.createElement('div');
+            wrapper.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:5px;';
+
             var btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'color-btn';
@@ -408,13 +411,15 @@
                 btn.onclick = function () { selectColor(this, v); };
             }
 
-            colorContainer.appendChild(btn);
+            wrapper.appendChild(btn);
 
             // Add color label
             var label = document.createElement('span');
-            label.style.cssText = 'font-size:0.75rem;color:var(--gray-500);margin-left:-5px;margin-right:10px;';
+            label.style.cssText = 'font-size:0.9rem;color:var(--gray-300);font-weight:600;';
             label.textContent = v.color;
-            colorContainer.appendChild(label);
+            wrapper.appendChild(label);
+
+            colorContainer.appendChild(wrapper);
 
             // Auto-select if it's the only color
             if (uniqueColors.length === 1) {
