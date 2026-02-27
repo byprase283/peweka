@@ -215,6 +215,8 @@
         <?php endif; ?>
 
         <form action="<?= base_url('admin/authenticate') ?>" method="post">
+            <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+                value="<?= $this->security->get_csrf_hash() ?>">
             <div class="form-group">
                 <label>Username</label>
                 <div class="input-group">

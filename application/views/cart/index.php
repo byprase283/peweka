@@ -180,7 +180,8 @@
 <div class="cart-page-wrapper">
     <div class="container">
 
-        <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+        <div
+            class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-secondary border-opacity-25">
             <h1 class="h4 text-white mb-0 fw-bold d-flex align-items-center gap-2">
                 <i class="fas fa-shopping-bag text-warning-custom"></i>
                 Keranjang <span class="badge bg-warning text-dark rounded-pill ms-1" id="cartCountHeader">0</span>
@@ -188,9 +189,11 @@
         </div>
 
         <?php if ($this->session->flashdata('error')): ?>
-            <div class="alert alert-danger border-0 rounded-4 p-4 mb-4 shadow-lg animate-in" style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.2) !important;">
+            <div class="alert alert-danger border-0 rounded-4 p-4 mb-4 shadow-lg animate-in"
+                style="background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.2) !important;">
                 <div class="d-flex gap-3 align-items-center">
-                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; flex-shrink: 0;">
+                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; flex-shrink: 0;">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div>
@@ -300,8 +303,8 @@
 </template>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () { 
-        renderCart(); 
+    document.addEventListener('DOMContentLoaded', function () {
+        renderCart();
         syncCartStock(); // Refresh stock from DB on load
     });
 
@@ -310,29 +313,32 @@
         if (!cart || cart.length === 0) return;
 
         var ids = cart.map(item => item.variant_id);
-        
+
         fetch('<?= base_url('product/get_variant_stock') ?>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ 'ids[]': ids }).toString()
+            body: new URLSearchParams({
+                'ids[]': ids,
+                '<?= $this->security->get_csrf_token_name() ?>': '<?= $this->security->get_csrf_hash() ?>'
+            }).toString()
         })
-        .then(response => response.json())
-        .then(stocks => {
-            var cart = getCart();
-            var updated = false;
-            cart.forEach(item => {
-                if (stocks[item.variant_id] !== undefined) {
-                    if (item.stock !== stocks[item.variant_id]) {
-                        item.stock = stocks[item.variant_id];
-                        updated = true;
+            .then(response => response.json())
+            .then(stocks => {
+                var cart = getCart();
+                var updated = false;
+                cart.forEach(item => {
+                    if (stocks[item.variant_id] !== undefined) {
+                        if (item.stock !== stocks[item.variant_id]) {
+                            item.stock = stocks[item.variant_id];
+                            updated = true;
+                        }
                     }
+                });
+                if (updated) {
+                    saveCart(cart);
+                    renderCart();
                 }
             });
-            if (updated) {
-                saveCart(cart);
-                renderCart();
-            }
-        });
     }
 
     function renderCart() {

@@ -6,6 +6,8 @@
     </div>
 
     <form action="<?= base_url('admin/store/update/' . $store->id) ?>" method="post">
+        <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+            value="<?= $this->security->get_csrf_hash() ?>">
         <div class="row">
             <div class="col-md-6">
                 <h4 class="mb-3" style="color: var(--yellow);">Informasi Dasar</h4>
@@ -26,7 +28,7 @@
                 <div class="form-group mt-4">
                     <label class="d-flex align-items-center gap-2" style="cursor: pointer;">
                         <input type="checkbox" name="is_default" value="1" <?= $store->is_default ? 'checked' : '' ?>
-                        style="width: 18px; height: 18px;">
+                            style="width: 18px; height: 18px;">
                         <span>Jadikan Toko Utama (Default Origin)</span>
                     </label>
                 </div>

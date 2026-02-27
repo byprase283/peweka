@@ -10,6 +10,8 @@ $action_url = $is_edit ? base_url('admin/voucher/update/' . $voucher->id) : base
 </div>
 
 <form action="<?= $action_url ?>" method="post">
+    <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+        value="<?= $this->security->get_csrf_hash() ?>">
     <div class="form-card" style="max-width: 600px;">
         <h3 style="font-family:'Outfit',sans-serif; color:var(--yellow); margin-bottom:20px;">
             <i class="fas fa-<?= $is_edit ? 'edit' : 'plus' ?>"></i>

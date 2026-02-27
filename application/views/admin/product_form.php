@@ -71,6 +71,8 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
 </div>
 
 <form action="<?= $action_url ?>" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+        value="<?= $this->security->get_csrf_hash() ?>">
     <div class="form-card" style="max-width: 800px;">
         <h3 style="font-family:'Outfit',sans-serif; color:var(--yellow); margin-bottom:20px;">
             <i class="fas fa-<?= $is_edit ? 'edit' : 'plus' ?>"></i>
@@ -164,7 +166,8 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
                     <?php foreach ($variants as $v): ?>
                         <div class="variant-row">
                             <div class="form-group">
-                                <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Ukuran</label>
+                                <label
+                                    style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Ukuran</label>
                                 <select name="variant_size[]" class="form-control">
                                     <option value="S" <?= $v->size == 'S' ? 'selected' : '' ?>>S</option>
                                     <option value="M" <?= $v->size == 'M' ? 'selected' : '' ?>>M</option>
@@ -175,26 +178,31 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Warna</label>
+                                <label
+                                    style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Warna</label>
                                 <input type="text" name="variant_color[]" class="form-control"
                                     value="<?= htmlspecialchars($v->color) ?>" placeholder="Warna">
                             </div>
                             <div class="form-group">
-                                <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Hex</label>
+                                <label
+                                    style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Hex</label>
                                 <input type="color" name="variant_hex[]" class="form-control" value="<?= $v->color_hex ?>"
                                     style="padding:5px; height:40px;">
                             </div>
                             <div class="form-group">
-                                <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Stok</label>
+                                <label
+                                    style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Stok</label>
                                 <input type="number" name="variant_stock[]" class="form-control" value="<?= $v->stock ?>"
                                     placeholder="Stok" min="0">
                             </div>
                             <div class="form-group">
-                                <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Harga</label>
+                                <label
+                                    style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Harga</label>
                                 <input type="text" name="variant_price[]" class="form-control" value="<?= (int) $v->price ?>"
                                     placeholder="Harga">
                             </div>
-                            <button type="button" class="remove-variant" onclick="this.parentElement.remove()" title="Hapus Varian">
+                            <button type="button" class="remove-variant" onclick="this.parentElement.remove()"
+                                title="Hapus Varian">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -202,7 +210,8 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
                 <?php else: ?>
                     <div class="variant-row">
                         <div class="form-group">
-                            <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Ukuran</label>
+                            <label
+                                style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Ukuran</label>
                             <select name="variant_size[]" class="form-control">
                                 <option value="S">S</option>
                                 <option value="M" selected>M</option>
@@ -213,25 +222,30 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
                             </select>
                         </div>
                         <div class="form-group">
-                            <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Warna</label>
+                            <label
+                                style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Warna</label>
                             <input type="text" name="variant_color[]" class="form-control" placeholder="Warna"
                                 value="Hitam">
                         </div>
                         <div class="form-group">
-                            <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Hex</label>
+                            <label
+                                style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Hex</label>
                             <input type="color" name="variant_hex[]" class="form-control" value="#1a1a1a"
                                 style="padding:5px; height:40px;">
                         </div>
                         <div class="form-group">
-                            <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Stok</label>
+                            <label
+                                style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Stok</label>
                             <input type="number" name="variant_stock[]" class="form-control" placeholder="Stok" value="10"
                                 min="0">
                         </div>
                         <div class="form-group">
-                            <label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Harga</label>
+                            <label
+                                style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Harga</label>
                             <input type="text" name="variant_price[]" class="form-control" placeholder="Harga">
                         </div>
-                        <button type="button" class="remove-variant" onclick="this.parentElement.remove()" title="Hapus Varian">
+                        <button type="button" class="remove-variant" onclick="this.parentElement.remove()"
+                            title="Hapus Varian">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>

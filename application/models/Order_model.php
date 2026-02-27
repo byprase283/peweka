@@ -3,6 +3,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Order_model extends CI_Model
 {
+    public function __construct()
+    {
+        parent::__construct();
+        // Migration: Add customer_email if not exists
+        if (!$this->db->field_exists('customer_email', 'orders')) {
+            $this->db->query("ALTER TABLE `orders` ADD `customer_email` VARCHAR(255) AFTER `customer_name` ");
+        }
+    }
 
     public function create($order_data, $items)
     {

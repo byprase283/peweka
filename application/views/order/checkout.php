@@ -253,6 +253,8 @@
         </style>
 
         <form action="<?= base_url('order/store') ?>" method="post" enctype="multipart/form-data" id="checkoutForm">
+            <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+                value="<?= $this->security->get_csrf_hash() ?>">
             <div class="checkout-grid">
                 <!-- Left: Form -->
                 <div class="checkout-form-card">
@@ -262,6 +264,12 @@
                     </div>
 
                     <div class="shipping-grid-custom">
+                        <div class="form-group shipping-full-row">
+                            <label><i class="fas fa-envelope"></i> Email Aktif</label>
+                            <input type="email" name="customer_email" class="form-control"
+                                placeholder="nama@email.com (Untuk info pembayaran)" required>
+                        </div>
+
                         <div class="form-group shipping-full-row">
                             <label><i class="fas fa-user"></i> Nama Lengkap</label>
                             <input type="text" name="customer_name" class="form-control"
@@ -676,6 +684,7 @@
         formData.append('subdistrict_id', subdistrictId);
         formData.append('courier', courier);
         formData.append('origin_id', originId);
+        formData.append('<?= $this->security->get_csrf_token_name() ?>', '<?= $this->security->get_csrf_hash() ?>');
 
         console.log("--- START SHIPPING V3 ---");
         fetch('<?= base_url('order/get_shipping_cost') ?>', {
@@ -834,6 +843,7 @@
         const formData = new FormData();
         formData.append('code', code);
         formData.append('subtotal', baseSubtotal);
+        formData.append('<?= $this->security->get_csrf_token_name() ?>', '<?= $this->security->get_csrf_hash() ?>');
 
         fetch('<?= base_url('order/apply_voucher') ?>', {
             method: 'POST',

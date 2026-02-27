@@ -1,5 +1,7 @@
 <div class="form-card">
     <form action="<?= base_url('admin/settings_update') ?>" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+            value="<?= $this->security->get_csrf_hash() ?>">
         <div class="row">
             <div class="col-md-6">
                 <h4 class="mb-4" style="font-family: 'Outfit', sans-serif; color: var(--yellow);">Identitas Situs</h4>

@@ -257,6 +257,7 @@ class Order extends CI_Controller
             'payment_method' => $payment_method,
             'payment_status' => $payment_status,
             'customer_name' => $this->input->post('customer_name'),
+            'customer_email' => $this->input->post('customer_email'),
             'customer_phone' => $this->input->post('customer_phone'),
             'customer_address' => $this->input->post('customer_address'),
             'province_id' => $this->input->post('province_id'),
@@ -325,7 +326,7 @@ class Order extends CI_Controller
                 'item_details' => $midtrans_items,
                 'customer_details' => [
                     'first_name' => $order_data['customer_name'],
-                    'email' => 'customer@peweka.id', // Placeholder as not in DB yet
+                    'email' => $order_data['customer_email'],
                     'phone' => $order_data['customer_phone'],
                     'billing_address' => [
                         'first_name' => $order_data['customer_name'],
