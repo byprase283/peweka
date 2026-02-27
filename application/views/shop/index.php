@@ -163,6 +163,17 @@
                                     <?php endif; ?>
                                     <div class="price">Rp <?= number_format($product->price, 0, ',', '.') ?></div>
                                 </div>
+                                <div class="card-desc-wrapper mt-2" onclick="event.preventDefault(); event.stopPropagation();">
+                                    <p class="card-desc collapsed" id="desc-shop-<?= $product->id ?>">
+                                        <?= htmlspecialchars($product->description) ?>
+                                    </p>
+                                    <?php if (strlen($product->description) > 80): ?>
+                                        <button type="button" class="btn-toggle-shop-desc"
+                                            onclick="toggleShopDesc(this, <?= $product->id ?>)">
+                                            Lihat Selengkapnya
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -201,6 +212,45 @@
 
         .card-badge.discount {
             background: #dc3545 !important;
+        }
+
+        /* Shop Page Description Toggle Styles */
+        .card-desc-wrapper {
+            position: relative;
+            z-index: 5;
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--gray-400);
+            margin-bottom: 4px;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .card-desc.collapsed {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-height: 3em;
+        }
+
+        .btn-toggle-shop-desc {
+            background: none;
+            border: none;
+            color: var(--yellow);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0;
+            cursor: pointer;
+            display: block;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle-shop-desc:hover {
+            text-decoration: underline;
+            transform: translateX(3px);
         }
 
         .category-buttons {
@@ -324,6 +374,19 @@
             sliderMax.addEventListener('input', slideMax);
             fillColor();
         });
+
+        function toggleShopDesc(btn, id) {
+            const desc = document.getElementById('desc-shop-' + id);
+            const isCollapsed = desc.classList.contains('collapsed');
+
+            if (isCollapsed) {
+                desc.classList.remove('collapsed');
+                btn.textContent = 'Sembunyikan';
+            } else {
+                desc.classList.add('collapsed');
+                btn.textContent = 'Lihat Selengkapnya';
+            }
+        }
     </script>
 
 
