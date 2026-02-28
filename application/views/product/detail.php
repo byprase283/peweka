@@ -70,7 +70,7 @@
                                     $available_sizes[] = $v->size;
                                 }
                             }
-                            $all_sizes = ['S', 'M', 'L', 'XL', 'XXL', 'ALL'];
+                            $all_sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'ALL'];
                             foreach ($all_sizes as $size):
                                 $has_stock = in_array($size, $available_sizes);
                                 $size_exists = false;
