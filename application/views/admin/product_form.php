@@ -169,6 +169,7 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
                                 <label
                                     style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Ukuran</label>
                                 <select name="variant_size[]" class="form-control">
+                                    <option value="XS" <?= $v->size == 'XS' ? 'selected' : '' ?>>XS</option>
                                     <option value="S" <?= $v->size == 'S' ? 'selected' : '' ?>>S</option>
                                     <option value="M" <?= $v->size == 'M' ? 'selected' : '' ?>>M</option>
                                     <option value="L" <?= $v->size == 'L' ? 'selected' : '' ?>>L</option>
@@ -213,6 +214,7 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
                             <label
                                 style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Ukuran</label>
                             <select name="variant_size[]" class="form-control">
+                                <option value="XS">XS</option>
                                 <option value="S">S</option>
                                 <option value="M" selected>M</option>
                                 <option value="L">L</option>
@@ -264,7 +266,7 @@ $action_url = $is_edit ? base_url('admin/product/update/' . $product->id) : base
     function addVariantRow() {
         var html = '<div class="variant-row">' +
             '<div class="form-group"><label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Ukuran</label><select name="variant_size[]" class="form-control">' +
-            '<option value="S">S</option><option value="M" selected>M</option><option value="L">L</option>' +
+            '<option value="XS">XS</option><option value="S">S</option><option value="M" selected>M</option><option value="L">L</option>' +
             '<option value="XL">XL</option><option value="XXL">XXL</option><option value="ALL">ALL</option></select></div>' +
             '<div class="form-group"><label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Warna</label><input type="text" name="variant_color[]" class="form-control" placeholder="Warna"></div>' +
             '<div class="form-group"><label style="font-size: 0.75rem; color: var(--gray-400); margin-bottom: 5px; display: block;">Hex</label><input type="color" name="variant_hex[]" class="form-control" value="#1a1a1a" style="padding:5px;height:40px;"></div>' +
