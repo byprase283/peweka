@@ -467,7 +467,7 @@ class Admin extends CI_Controller
     {
         $data['title'] = 'Edit Produk - ' . get_setting('site_name', 'Peweka') . ' Admin';
         $data['product'] = $this->Product_model->get_by_id($id, FALSE);
-        $data['variants'] = $this->Product_model->get_variants($id);
+        $data['variants'] = $this->Product_model->get_variants($id, FALSE);
         $data['gallery_images'] = $this->Product_model->get_images($id);
         $data['categories'] = $this->Category_model->get_all();
         if (!$data['product'])
